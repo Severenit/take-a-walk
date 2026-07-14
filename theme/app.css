@@ -100,7 +100,7 @@ h1{margin:0;font:800 27px/1.1 var(--sans);letter-spacing:-.025em}
   background:var(--ochre);display:grid;place-items:center}
 .pp::before{content:"";display:block;width:0;height:0;margin-left:3px;
   border-left:14px solid #FFF8EA;border-top:9px solid transparent;border-bottom:9px solid transparent}
-.player.playing .pp::before{width:14px;height:16px;margin-left:0;border:0;
+.player.playing .pp::before{width:4px;height:16px;margin-left:0;border:0;
   border-left:5px solid #FFF8EA;border-right:5px solid #FFF8EA}
 .pp:active{transform:translateY(1px)}
 .pl-track{flex:1;padding:12px 0;cursor:pointer}
