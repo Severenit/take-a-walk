@@ -224,6 +224,12 @@ def build(serve=False):
     html = env.get_template("home.html").render(site=site, cities=cities)
     open(os.path.join(DIST, "index.html"), "w", encoding="utf-8").write(html)
 
+    # питч для партнёров — /pitch/, с главной на него ссылок нет
+    out = os.path.join(DIST, "pitch")
+    os.makedirs(out, exist_ok=True)
+    html = env.get_template("pitch.html").render(site=site)
+    open(os.path.join(out, "index.html"), "w", encoding="utf-8").write(html)
+
     shutil.copy(os.path.join(THEME, "app.css"), os.path.join(DIST, "app.css"))
     app_js = open(os.path.join(THEME, "app.js"), encoding="utf-8").read().replace("__BASE__", BASE)
     open(os.path.join(DIST, "app.js"), "w", encoding="utf-8").write(app_js)
