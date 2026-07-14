@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#2F353B"/>
+  <path d="M0 0h64v64H0z" fill="#CDC8BD"
+        clip-path="polygon(0 0,100% 0,100% 68%,82% 78%,63% 62%,44% 80%,25% 64%,9% 76%,0 66%)"/>
+  <path d="M32 8 L38 30 L58 30 L42 44 L48 62 L32 50 L16 62 L22 44 L6 30 L26 30 Z" fill="none"/>
+  <circle cx="32" cy="40" r="7" fill="#A96C12"/>
+  <path d="M32 12v18M24 22l8-10 8 10" stroke="#2F353B" stroke-width="3" fill="none" stroke-linecap="square"/>
+</svg>

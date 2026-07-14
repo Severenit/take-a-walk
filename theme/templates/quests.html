@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Квесты — {{ city.name }}{% endblock %}
+{% block body %}
+<header class="hero">
+  <a class="back" href="{{ site.base }}/{{ city.id }}/">← {{ city.name }}</a>
+  <div class="kicker">Через весь город</div>
+  <h1>{{ q.title }}</h1>
+</header>
+
+<main>
+  <div class="lead"><p>{{ q.intro }}</p></div>
+
+  {% for quest in q.quests %}
+  <div class="q">
+    <h3>{{ quest.title }}</h3>
+    {% if quest.score %}<div class="score">{{ quest.score }}</div>{% endif %}
+    <p>{{ quest.text }}</p>
+    {% if quest.have %}
+    <div class="qh">Нашли</div>
+    <ul>{% for x in quest.have %}<li class="got">{{ x }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if quest.todo %}
+    <div class="qh">Осталось</div>
+    <ul>{% for x in quest.todo %}<li class="blank">{{ x }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if quest.note %}<div class="look">{{ quest.note }}</div>{% endif %}
+  </div>
+  {% endfor %}
+
+  {% if q.fragile %}
+  <div class="q">
+    <h3>Что может исчезнуть</h3>
+    <p>Не расстраивайтесь заранее, но знайте.</p>
+    <ul>{% for x in q.fragile %}<li>{{ x }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  {% if q.unknown %}
+  <div class="q">
+    <h3>Чего я не выяснил</h3>
+    <p>Честно, чтобы вы не думали, что тут всё раскопано.</p>
+    <ul>{% for x in q.unknown %}<li class="blank">{{ x }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+</main>
+
+<footer><b>Прогулки</b><a href="{{ site.repo }}">Исходники</a></footer>
+{% endblock %}

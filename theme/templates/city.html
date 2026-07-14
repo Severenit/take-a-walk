@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ city.name }} — {{ site.title }}{% endblock %}
+{% block desc %}{{ city.tagline or site.tagline }}{% endblock %}
+{% block body %}
+<header class="hero">
+  <a class="back" href="{{ site.base }}/">← все города</a>
+  <h1>{{ city.name }}</h1>
+  {% if city.tagline %}<p class="tagline">{{ city.tagline }}</p>{% endif %}
+</header>
+
+<main>
+  {% if city.intro %}
+  <div class="lead"><p>{{ city.intro }}</p></div>
+  {% endif %}
+
+  {% for r in city.routes %}
+  <a class="route" href="{{ site.base }}/{{ city.id }}/{{ r.id }}/">
+    <div class="route-sub">{{ r.subtitle }}</div>
+    <div class="route-title">{{ r.title }}</div>
+    <div class="route-meta">{{ r.meta }}</div>
+    <div class="route-nums">
+      <span>{{ r.points|length }} точек</span>
+      {% set ns = r.points|selectattr('story')|list|length %}
+      {% if ns %}<span>{{ ns }} историй вслух</span>{% endif %}
+    </div>
+  </a>
+  {% endfor %}
+
+  {% if city.quests %}
+  <a class="route quests-link" href="{{ site.base }}/{{ city.id }}/quests/">
+    <div class="route-sub">Через весь город</div>
+    <div class="route-title">{{ city.quests.title }}</div>
+    <div class="route-meta">{{ city.quests.quests|length }} коллекции, которые собирают годами</div>
+  </a>
+  {% endif %}
+
+  {% if not city.routes %}
+  <div class="q">
+    <h3>Маршрутов пока нет</h3>
+    <p>Положите файл в <code>content/{{ city.id }}/</code>, фотографии — в <code>photos/{{ city.id }}/</code>, и запустите сборку.</p>
+  </div>
+  {% endif %}
+</main>
+
+<footer>
+  <b>Прогулки</b>
+  <a href="{{ site.repo }}">Исходники на GitHub</a>
+</footer>
+{% endblock %}

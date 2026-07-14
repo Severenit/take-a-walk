@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}{{ route.title }} — {{ city.name }}{% endblock %}
+{% block desc %}{{ route.intro }}{% endblock %}
+{% block body %}
+<header class="hero route-hero">
+  <a class="back" href="{{ site.base }}/{{ city.id }}/">← {{ city.name }}</a>
+  <div class="kicker">{{ route.subtitle }}</div>
+  <h1>{{ route.title }}</h1>
+  <div class="meta-line">{{ route.meta }}</div>
+  <div class="progress"><b data-progress-num>0</b> из {{ route.points|length }} найдено</div>
+  <div class="bar"><i data-progress-bar></i></div>
+</header>
+
+<main data-route="{{ city.id }}/{{ route.id }}">
+  <div class="lead">
+    <p>{{ route.intro }}</p>
+    <div class="lead-acts">
+      <a class="allroute" target="_blank" rel="noopener" href="{{ route.points|ymaps_all }}">Весь маршрут в Яндексе →</a>
+      <button class="offline" data-offline='{{ route.img_urls|tojson }}'>
+        <span data-offline-label>Сохранить офлайн</span>
+      </button>
+    </div>
+  </div>
+
+  {% for p in route.points %}
+  <article class="card{% if p.mine %} add{% endif %}{% if p.closed %} gone{% endif %}" id="p{{ p.n }}">
+    <div class="head">
+      <div class="num">{% if p.mine %}+{% else %}{{ p.n }}{% endif %}</div>
+      <div class="titles">
+        <h3>{{ p.name }}</h3>
+        <div class="addr">{{ p.addr }}</div>
+        {% if p.mine %}<span class="tag">Добавлено от себя</span>{% endif %}
+        {% if p.closed %}<span class="tag gone-tag">Больше нет на месте</span>{% endif %}
+      </div>
+    </div>
+
+    {% if p.shots %}
+    <div class="shots{% if p.shots|length == 1 %} one{% endif %}">
+      {% for s in p.shots %}
+      <img loading="lazy" decoding="async" alt="" src="{{ s.src }}" srcset="{{ s.srcset }}" sizes="(max-width:640px) 100vw, 640px">
+      {% endfor %}
+    </div>
+    {% if p.shots|length > 1 %}
+    <div class="swipe">Листайте вбок — {{ p.shots|length }} кадра</div>
+    {% endif %}
+    {% endif %}
+
+    <div class="body">
+      {% for para in p.text %}<p>{{ para }}</p>{% endfor %}
+    </div>
+
+    {% if p.story %}
+    <div class="story">
+      <b>Расскажи</b>
+      {% for para in p.story %}<p>{{ para }}</p>{% endfor %}
+    </div>
+    {% endif %}
+
+    {% if p.warn %}<div class="look warn">{{ p.warn }}</div>{% endif %}
+    {% if p.look %}<div class="look">{{ p.look }}</div>{% endif %}
+
+    <div class="acts">
+      <a class="go" target="_blank" rel="noopener" href="{{ p|ymaps_route }}">Веду</a>
+      <a class="see" target="_blank" rel="noopener" href="{{ p|ymaps_point }}">На карте</a>
+    </div>
+
+    <input class="cb" type="checkbox" id="k-{{ route.id }}-{{ p.n }}" data-id="{{ city.id }}/{{ route.id }}/{{ p.n }}">
+    <label class="mark" for="k-{{ route.id }}-{{ p.n }}">
+      <span class="box">✔</span>
+      <span class="m-off">Отметить, что нашли</span>
+      <span class="m-on">Нашли</span>
+    </label>
+
+    <div class="stale">
+      {% if p.checked %}<span class="checked">Был на месте {{ p.checked }}</span>{% endif %}
+      <a class="gone-btn" target="_blank" rel="noopener"
+         href="{{ site.repo }}/issues/new?title={{ ('Нет на месте: ' ~ p.name ~ ' (' ~ city.id ~ '/' ~ route.id ~ ')')|urlencode }}&body={{ ('**Точка:** ' ~ p.name ~ '
+**Адрес:** ' ~ p.addr ~ '
+**Маршрут:** ' ~ city.id ~ '/' ~ route.id ~ '
+
+Проверил(а) ' ~ today ~ ' — объекта нет.
+
+Что там сейчас:')|urlencode }}">Этого больше нет</a>
+    </div>
+  </article>
+  {% endfor %}
+
+  {% if route.coffee %}
+  <div class="coffee">
+    <b>Где сесть</b>
+    <p>{{ route.coffee }}</p>
+  </div>
+  {% endif %}
+</main>
+
+<footer>
+  <b>Прогулки</b>
+  Половина этих объектов — временные. Если чего-то не нашли, жмите «этого больше нет» — маршрут обновится.
+  <a href="{{ site.repo }}">Исходники</a>
+</footer>
+{% endblock %}
