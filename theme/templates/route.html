@@ -16,8 +16,8 @@
     <p>{{ route.intro }}</p>
     <div class="lead-acts">
       <a class="allroute" target="_blank" rel="noopener" href="{{ route.points|ymaps_all }}">Весь маршрут в Яндексе →</a>
-      <button class="offline" data-offline='{{ route.img_urls|tojson }}'>
-        <span data-offline-label>Сохранить офлайн</span>
+      <button class="offline" data-offline='{{ route.offline_urls|tojson }}'>
+        <span data-offline-label>Сохранить офлайн{% if route.offline_urls %} · {{ route.offline_mb }} МБ{% endif %}</span>
       </button>
     </div>
   </div>
@@ -53,6 +53,19 @@
     <div class="story">
       <b>Расскажи</b>
       {% for para in p.story %}<p>{{ para }}</p>{% endfor %}
+    </div>
+    {% endif %}
+
+    {% if p.audio %}
+    <div class="tale">
+      <b>Большая история{% if p.audio.dur %} · {{ p.audio.dur }}{% endif %}</b>
+      <audio controls preload="none" src="{{ p.audio.url }}"></audio>
+      {% if p.audio.text %}
+      <details>
+        <summary>…или почитайте</summary>
+        {% for para in p.audio.text %}<p>{{ para }}</p>{% endfor %}
+      </details>
+      {% endif %}
     </div>
     {% endif %}
 

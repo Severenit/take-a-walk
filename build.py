@@ -19,6 +19,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 ROOT = os.path.dirname(os.path.abspath(__file__))
 CONTENT = os.path.join(ROOT, "content")
 PHOTOS = os.path.join(ROOT, "photos")
+AUDIO = os.path.join(ROOT, "audio")
 THEME = os.path.join(ROOT, "theme")
 DIST = os.path.join(ROOT, "dist")
 
@@ -30,6 +31,7 @@ QUALITY = 62
 POINT_RE = re.compile(r"^##\s+(.+)$", re.M)
 FIELD_RE = re.compile(r"^(addr|geo|photo|checked|mine|fragile|closed):\s*(.*)$", re.M)
 BLOCK_RE = re.compile(r"^:::\s*(story|warn|look)\s*\n(.*?)^:::\s*$", re.M | re.S)
+AUDIO_RE = re.compile(r"^:::\s*audio\s+(.+?)\s*\n(.*?)^:::\s*$", re.M | re.S)
 
 
 def parse_route(path):
@@ -47,7 +49,17 @@ def parse_route(path):
         fields = dict(FIELD_RE.findall(chunk))
         blocks = {t: v.strip() for t, v in BLOCK_RE.findall(chunk)}
 
-        text = FIELD_RE.sub("", BLOCK_RE.sub("", chunk)).strip()
+        audio = None
+        am = AUDIO_RE.search(chunk)
+        if am:
+            head = [s.strip() for s in am.group(1).split("·", 1)]
+            audio = {
+                "file": head[0],
+                "dur": head[1] if len(head) > 1 else "",
+                "text": [t.strip() for t in am.group(2).strip().split("\n\n") if t.strip()],
+            }
+
+        text = FIELD_RE.sub("", BLOCK_RE.sub("", AUDIO_RE.sub("", chunk))).strip()
 
         geo = fields.get("geo", "")
         try:
@@ -69,6 +81,7 @@ def parse_route(path):
             "story": [p.strip() for p in blocks.get("story", "").split("\n\n") if p.strip()],
             "warn": blocks.get("warn", "").strip(),
             "look": blocks.get("look", "").strip(),
+            "audio": audio,
         })
 
     route["points"] = points
@@ -130,6 +143,29 @@ def process_photos(city, route, BASE=""):
     return made
 
 
+def process_audio(city, route, BASE=""):
+    src_dir = os.path.join(AUDIO, city["id"], route["id"])
+    out_dir = os.path.join(DIST, "audio", city["id"], route["id"])
+    made = []
+    for p in route["points"]:
+        a = p["audio"]
+        if not a:
+            continue
+        src = os.path.join(src_dir, a["file"])
+        if not os.path.exists(src):
+            print(f"  ! нет аудио {city['id']}/{route['id']}/{a['file']}")
+            p["audio"] = None
+            continue
+        os.makedirs(out_dir, exist_ok=True)
+        shutil.copy(src, os.path.join(out_dir, a["file"]))
+        mb = os.path.getsize(src) / 1024 / 1024
+        if mb > 5:
+            print(f"  ! аудио {a['file']} — {mb:.1f} MB, пожмите (ffmpeg: моно 64 kbps)")
+        a["url"] = f"{BASE}/audio/{city['id']}/{route['id']}/{a['file']}"
+        made.append(a["url"])
+    return made
+
+
 # ---------------------------------------------------------------- сборка
 
 def build(serve=False):
@@ -162,10 +198,16 @@ def build(serve=False):
     for city in cities:
         for route in city["routes"]:
             imgs = process_photos(city, route, BASE)
+            sounds = process_audio(city, route, BASE)
+            route["offline_urls"] = imgs + sounds
             route["img_count"] = len(imgs)
-            route["img_urls"] = imgs
             route["n_points"] = len(route["points"])
             route["n_stories"] = sum(1 for p in route["points"] if p["story"])
+
+            size = sum(os.path.getsize(os.path.join(DIST, *u[len(BASE):].strip("/").split("/")))
+                       for u in route["offline_urls"])
+            mb = size / 1024 / 1024
+            route["offline_mb"] = f"{mb:.1f}" if mb < 3 else f"{mb:.0f}"
 
             out = os.path.join(DIST, city["id"], route["id"])
             os.makedirs(out, exist_ok=True)
@@ -214,17 +256,23 @@ def build(serve=False):
 
     np = sum(len(r["points"]) for c in cities for r in c["routes"])
     ns = sum(r["n_stories"] for c in cities for r in c["routes"])
+    na = sum(1 for c in cities for r in c["routes"] for p in r["points"] if p["audio"])
     nr = sum(len(c["routes"]) for c in cities)
     mb = sum(os.path.getsize(os.path.join(dp, f))
              for dp, _, fs in os.walk(DIST) for f in fs) / 1024 / 1024
-    print(f"\n  {len(cities)} города · {nr} маршрута · {np} точек · {ns} историй")
+    print(f"\n  {len(cities)} города · {nr} маршрута · {np} точек · {ns} историй"
+          + (f" · {na} аудио" if na else ""))
     print(f"  dist/ — {mb:.1f} MB\n")
 
     if serve:
-        import http.server, socketserver, functools
-        os.chdir(DIST)
-        h = functools.partial(http.server.SimpleHTTPRequestHandler, directory=DIST)
-        print("  http://localhost:8000  (Ctrl+C — выход)\n")
+        import http.server, socketserver, functools, tempfile
+        root = DIST
+        if BASE:
+            # сайт живёт в подпапке — локально повторяем то же самое через симлинк
+            root = tempfile.mkdtemp(prefix="progulki-serve-")
+            os.symlink(DIST, os.path.join(root, BASE.strip("/")))
+        h = functools.partial(http.server.SimpleHTTPRequestHandler, directory=root)
+        print(f"  http://localhost:8000{BASE}/  (Ctrl+C — выход)\n")
         socketserver.TCPServer.allow_reuse_address = True
         socketserver.TCPServer(("", 8000), h).serve_forever()
 
