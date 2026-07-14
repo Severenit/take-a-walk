@@ -53,7 +53,11 @@
     <div class="story">
       <b>Расскажи{% if p.audio and p.audio.dur %} · {{ p.audio.dur }}{% endif %}</b>
       {% if p.audio %}
-      <audio controls preload="none" src="{{ p.audio.url }}"></audio>
+      <div class="player" data-player="{{ p.audio.url }}">
+        <button class="pp" type="button" aria-label="Слушать"></button>
+        <div class="pl-track"><span class="pl-line"><i></i></span></div>
+        <span class="pl-time"></span>
+      </div>
       {% if p.story %}
       <details>
         <summary>…или почитайте</summary>
