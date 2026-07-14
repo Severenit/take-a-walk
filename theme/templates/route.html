@@ -49,22 +49,19 @@
       {% for para in p.text %}<p>{{ para }}</p>{% endfor %}
     </div>
 
-    {% if p.story %}
+    {% if p.story or p.audio %}
     <div class="story">
-      <b>Расскажи</b>
-      {% for para in p.story %}<p>{{ para }}</p>{% endfor %}
-    </div>
-    {% endif %}
-
-    {% if p.audio %}
-    <div class="tale">
-      <b>Большая история{% if p.audio.dur %} · {{ p.audio.dur }}{% endif %}</b>
+      <b>Расскажи{% if p.audio and p.audio.dur %} · {{ p.audio.dur }}{% endif %}</b>
+      {% if p.audio %}
       <audio controls preload="none" src="{{ p.audio.url }}"></audio>
-      {% if p.audio.text %}
+      {% if p.story %}
       <details>
         <summary>…или почитайте</summary>
-        {% for para in p.audio.text %}<p>{{ para }}</p>{% endfor %}
+        {% for para in p.story %}<p>{{ para }}</p>{% endfor %}
       </details>
+      {% endif %}
+      {% else %}
+      {% for para in p.story %}<p>{{ para }}</p>{% endfor %}
       {% endif %}
     </div>
     {% endif %}

@@ -95,18 +95,16 @@ h1{margin:0;font:800 27px/1.1 var(--sans);letter-spacing:-.025em}
   font:500 14.5px/1.45 var(--sans);color:#3D444B}
 .look.warn{border-left-color:var(--ochre);background:#EFE6D2}
 
-.tale{margin:15px 12px 6px;padding:16px;background:var(--slab-2);border:1px dashed var(--hair)}
-.tale > b{display:block;margin-bottom:11px;color:var(--rust);
-  font:700 10.5px/1 var(--mono);letter-spacing:.17em;text-transform:uppercase}
-.tale audio{display:block;width:100%;height:40px}
-.tale details{margin-top:13px}
-.tale summary{cursor:pointer;list-style:none;color:var(--muted);
+.story audio{display:block;width:100%;height:40px}
+.story details{margin-top:13px}
+.story summary{cursor:pointer;list-style:none;color:#9AA1A8;
   font:600 11.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
-  border-bottom:1px dashed var(--hair);display:inline-block;padding-bottom:2px;
+  border-bottom:1px dashed rgba(255,255,255,.25);display:inline-block;padding-bottom:2px;
   -webkit-user-select:none;user-select:none}
-.tale summary::-webkit-details-marker{display:none}
-.tale details[open] summary{color:var(--rust)}
-.tale details p{margin:12px 0 0;font-size:16px;line-height:1.58;color:#31373D}
+.story summary::-webkit-details-marker{display:none}
+.story details[open] summary{color:var(--ochre)}
+.story details p{margin:12px 0 0}
+.story details p:first-of-type{margin-top:14px}
 
 .acts{display:flex;gap:8px;padding:15px 16px}
 .acts a{flex:1;text-align:center;text-decoration:none;padding:15px 6px;

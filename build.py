@@ -29,9 +29,8 @@ QUALITY = 62
 # ---------------------------------------------------------------- разбор .md
 
 POINT_RE = re.compile(r"^##\s+(.+)$", re.M)
-FIELD_RE = re.compile(r"^(addr|geo|photo|checked|mine|fragile|closed):\s*(.*)$", re.M)
+FIELD_RE = re.compile(r"^(addr|geo|photo|audio|checked|mine|fragile|closed):\s*(.*)$", re.M)
 BLOCK_RE = re.compile(r"^:::\s*(story|warn|look)\s*\n(.*?)^:::\s*$", re.M | re.S)
-AUDIO_RE = re.compile(r"^:::\s*audio\s+(.+?)\s*\n(.*?)^:::\s*$", re.M | re.S)
 
 
 def parse_route(path):
@@ -50,16 +49,11 @@ def parse_route(path):
         blocks = {t: v.strip() for t, v in BLOCK_RE.findall(chunk)}
 
         audio = None
-        am = AUDIO_RE.search(chunk)
-        if am:
-            head = [s.strip() for s in am.group(1).split("·", 1)]
-            audio = {
-                "file": head[0],
-                "dur": head[1] if len(head) > 1 else "",
-                "text": [t.strip() for t in am.group(2).strip().split("\n\n") if t.strip()],
-            }
+        if fields.get("audio", "").strip():
+            head = [s.strip() for s in fields["audio"].split("·", 1)]
+            audio = {"file": head[0], "dur": head[1] if len(head) > 1 else ""}
 
-        text = FIELD_RE.sub("", BLOCK_RE.sub("", AUDIO_RE.sub("", chunk))).strip()
+        text = FIELD_RE.sub("", BLOCK_RE.sub("", chunk)).strip()
 
         geo = fields.get("geo", "")
         try:
