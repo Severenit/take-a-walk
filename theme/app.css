@@ -176,7 +176,8 @@ h1{margin:0;font:800 27px/1.1 var(--sans);letter-spacing:-.025em}
 .how b{display:block;margin:0 0 4px;color:var(--ochre);
   font:700 10.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase}
 .qi li{display:flex;gap:10px;align-items:flex-start;padding:10px 0;font:500 14.5px/1.45 var(--mono)}
-.qi li::before{content:none}
+.qi li::before,.qi li.blank::before,.qi li.got::before{content:none}
+.qi li.blank{color:inherit}
 .qi-tick{flex:0 0 22px;width:22px;height:22px;margin-top:1px;padding:0;position:relative;
   border:2px solid var(--ochre);border-radius:50%;background:transparent;cursor:pointer}
 .qi li.got .qi-tick{border-color:var(--rust);background:var(--rust);cursor:default}
