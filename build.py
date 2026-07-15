@@ -9,7 +9,7 @@
 Контент лежит в content/<город>/<маршрут>.md, фото — в photos/<город>/<маршрут>/.
 Ничего больше знать не нужно: добавил файл, запустил, получил сайт.
 """
-import argparse, hashlib, json, os, re, shutil, sys
+import argparse, hashlib, json, os, re, shutil, sys, urllib.parse
 from datetime import date
 
 import yaml
@@ -83,6 +83,40 @@ def parse_route(path):
     return route
 
 
+def normalize_quests(q, city_name, path):
+    """Пункт квеста — либо строка (как раньше), либо словарь name/addr/geo/note/have.
+    Строки в have/todo превращаются в те же словари, чтобы шаблон был один.
+    geo даёт точную ссылку на карту, addr без geo — ссылку-поиск."""
+    for i, quest in enumerate(q.get("quests") or []):
+        quest["qid"] = quest.get("id") or f"q{i}"
+        items = quest.get("items")
+        if items is None:
+            items = [{"name": x, "have": True} for x in quest.get("have") or []] + \
+                    [{"name": x} for x in quest.get("todo") or []]
+        norm = []
+        for it in items:
+            if isinstance(it, str):
+                it = {"name": it}
+            if not it.get("name"):
+                it["name"] = it.get("addr", "")
+            geo = str(it.get("geo") or "").strip()
+            if geo:
+                try:
+                    lat, lon = [float(x) for x in geo.split(",")]
+                except ValueError:
+                    raise ValueError(f"{path} / «{quest['title']}» / «{it.get('name')}»: "
+                                     f"битый geo (нужно «59.93, 30.31»)")
+                it["map"] = f"https://yandex.ru/maps/?pt={lon},{lat}&z=18&l=map"
+            elif it.get("addr"):
+                it["map"] = ("https://yandex.ru/maps/?text=" +
+                             urllib.parse.quote(f"{city_name}, {it['addr']}"))
+            norm.append(it)
+        quest["items"] = norm
+        if norm and not quest.get("score"):
+            n = sum(1 for it in norm if it.get("have"))
+            quest["score"] = f"Найдено {n} из {len(norm)}"
+
+
 def load_city(city_dir):
     city = yaml.safe_load(open(os.path.join(city_dir, "city.yml"), encoding="utf-8"))
     city["id"] = os.path.basename(city_dir)
@@ -92,6 +126,8 @@ def load_city(city_dir):
             city["routes"].append(parse_route(os.path.join(city_dir, fn)))
     qp = os.path.join(city_dir, "quests.yml")
     city["quests"] = yaml.safe_load(open(qp, encoding="utf-8")) if os.path.exists(qp) else None
+    if city["quests"]:
+        normalize_quests(city["quests"], city["name"], qp)
 
     order = city.get("order")
     if order:

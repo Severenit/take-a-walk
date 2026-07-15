@@ -15,13 +15,25 @@
     <h3>{{ quest.title }}</h3>
     {% if quest.score %}<div class="score">{{ quest.score }}</div>{% endif %}
     <p>{{ quest.text }}</p>
-    {% if quest.have %}
-    <div class="qh">Нашли</div>
-    <ul>{% for x in quest.have %}<li class="got">{{ x }}</li>{% endfor %}</ul>
-    {% endif %}
-    {% if quest.todo %}
-    <div class="qh">Осталось</div>
-    <ul>{% for x in quest.todo %}<li class="blank">{{ x }}</li>{% endfor %}</ul>
+    {% if quest.how %}<div class="how"><b>Как проходить</b>{{ quest.how }}</div>{% endif %}
+    {% if quest["items"] %}
+    <ul class="qi">
+      {% for it in quest["items"] %}
+      <li class="{{ 'got' if it.have else 'blank' }}" data-q="{{ quest.qid }}:{{ loop.index0 }}">
+        <button class="qi-tick" type="button" aria-label="отметить найденным"{% if it.have %} disabled{% endif %}></button>
+        <div class="qi-body">
+          <div class="qi-name">{{ it.name }}</div>
+          {% if (it.addr and it.addr != it.name) or it.map %}
+          <div class="qi-meta">
+            {% if it.addr and it.addr != it.name %}<span>{{ it.addr }}</span>{% endif %}
+            {% if it.map %}<a href="{{ it.map }}">карта</a>{% endif %}
+          </div>
+          {% endif %}
+          {% if it.note %}<div class="qi-note">{{ it.note }}</div>{% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
     {% endif %}
     {% if quest.note %}<div class="look">{{ quest.note }}</div>{% endif %}
   </div>

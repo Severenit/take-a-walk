@@ -34,6 +34,23 @@
   });
   tick();
 
+  // ---------- отметки в квестах ----------
+  var QKEY = 'progulki:qfound';
+  var qfound = {};
+  try { qfound = JSON.parse(localStorage.getItem(QKEY) || '{}'); } catch (e) {}
+  [].slice.call(document.querySelectorAll('li[data-q]')).forEach(function (li) {
+    var btn = li.querySelector('.qi-tick');
+    if (!btn || li.classList.contains('got')) return;
+    var id = li.dataset.q;
+    if (qfound[id]) li.classList.add('self');
+    btn.addEventListener('click', function () {
+      var on = !li.classList.contains('self');
+      li.classList.toggle('self', on);
+      if (on) { qfound[id] = 1; } else { delete qfound[id]; }
+      try { localStorage.setItem(QKEY, JSON.stringify(qfound)); } catch (e) {}
+    });
+  });
+
   // ---------- аудио-истории ----------
   var playing = null;
   [].slice.call(document.querySelectorAll('[data-player]')).forEach(function (el) {
