@@ -13,26 +13,33 @@
   <div class="lead"><p>{{ city.intro }}</p></div>
   {% endif %}
 
+  <div class="cards">
   {% for r in city.routes %}
   <a class="route" href="{{ site.base }}/{{ city.id }}/{{ r.id }}/">
-    <div class="route-sub">{{ r.subtitle }}</div>
-    <div class="route-title">{{ r.title }}</div>
-    <div class="route-meta">{{ r.meta }}</div>
-    <div class="route-nums">
-      <span>{{ r.points|length }} точек</span>
-      {% set ns = r.points|selectattr('story')|list|length %}
-      {% if ns %}<span>{{ ns }} историй вслух</span>{% endif %}
+    {% if r.cover %}<img class="cover" loading="lazy" decoding="async" alt="" src="{{ r.cover }}">{% endif %}
+    <div class="card-body">
+      <div class="route-sub">{{ r.subtitle }}</div>
+      <div class="route-title">{{ r.title }}</div>
+      <div class="route-meta">{{ r.meta }}</div>
+      <div class="route-nums">
+        <span>{{ r.points|length }} точек</span>
+        {% set ns = r.points|selectattr('story')|list|length %}
+        {% if ns %}<span>{{ ns }} историй вслух</span>{% endif %}
+      </div>
     </div>
   </a>
   {% endfor %}
 
   {% if city.quests %}
   <a class="route quests-link" href="{{ site.base }}/{{ city.id }}/quests/">
-    <div class="route-sub">Через весь город</div>
-    <div class="route-title">{{ city.quests.title }}</div>
-    <div class="route-meta">{{ city.quests.quests|length }} коллекции, которые собирают годами</div>
+    <div class="card-body">
+      <div class="route-sub">Через весь город</div>
+      <div class="route-title">{{ city.quests.title }}</div>
+      <div class="route-meta">{{ city.quests.quests|length }} коллекции, которые собирают годами</div>
+    </div>
   </a>
   {% endif %}
+  </div>
 
   {% if not city.routes %}
   <div class="q">

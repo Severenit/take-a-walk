@@ -4,6 +4,8 @@
   <div class="kicker">Пешком · по трещинам</div>
   <h1>{{ site.title }}</h1>
   <p class="tagline">{{ site.tagline }}</p>
+  <div class="meta-line">{{ stats.cities }} города · {{ stats.routes }} маршрутов ·
+    {{ stats.points }} точек · {{ stats.stories }} историй вслух</div>
 </header>
 
 <main>
@@ -11,16 +13,22 @@
     <p>{{ site.about }}</p>
   </div>
 
+  <div class="cards">
   {% for city in cities %}
   <a class="city" href="{{ site.base }}/{{ city.id }}/">
-    <div class="city-name">{{ city.name }}</div>
-    <div class="city-meta">
-      {{ city.routes|length }} маршрут{% if city.routes|length > 1 %}а{% endif %} ·
-      {{ city.routes|map(attribute='points')|map('length')|sum }} точек
+    {% set cover = city.routes|selectattr('cover')|map(attribute='cover')|first %}
+    {% if cover %}<img class="cover" loading="lazy" decoding="async" alt="" src="{{ cover }}">{% endif %}
+    <div class="card-body">
+      <div class="city-name">{{ city.name }}</div>
+      <div class="city-meta">
+        {{ city.routes|length }} маршрут{% if city.routes|length > 1 %}а{% endif %} ·
+        {{ city.routes|map(attribute='points')|map('length')|sum }} точек
+      </div>
+      {% if city.note %}<div class="city-note">{{ city.note }}</div>{% endif %}
     </div>
-    {% if city.note %}<div class="city-note">{{ city.note }}</div>{% endif %}
   </a>
   {% endfor %}
+  </div>
 
   <div class="q">
     <h3>Как это устроено</h3>

@@ -233,6 +233,8 @@ def build(serve=False):
             route["img_count"] = len(imgs)
             route["n_points"] = len(route["points"])
             route["n_stories"] = sum(1 for p in route["points"] if p["story"])
+            route["cover"] = next(
+                (p["shots"][0]["src"] for p in route["points"] if p.get("shots")), None)
 
             size = sum(os.path.getsize(os.path.join(DIST, *u[len(BASE):].strip("/").split("/")))
                        for u in route["offline_urls"])
@@ -257,7 +259,13 @@ def build(serve=False):
         open(os.path.join(out, "index.html"), "w", encoding="utf-8").write(html)
         shell.append(f"{BASE}/{city['id']}/")
 
-    html = env.get_template("home.html").render(site=site, cities=cities)
+    stats = {
+        "cities": len(cities),
+        "routes": sum(len(c["routes"]) for c in cities),
+        "points": sum(r["n_points"] for c in cities for r in c["routes"]),
+        "stories": sum(r["n_stories"] for c in cities for r in c["routes"]),
+    }
+    html = env.get_template("home.html").render(site=site, cities=cities, stats=stats)
     open(os.path.join(DIST, "index.html"), "w", encoding="utf-8").write(html)
 
     # питч для партнёров — /pitch/, с главной на него ссылок нет
