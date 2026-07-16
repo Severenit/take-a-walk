@@ -15,6 +15,13 @@
 </head>
 <body>
 <div class="wrap">
+<nav class="topnav">
+  <a class="brand" href="{{ site.base }}/">Прогулки</a>
+  <div class="topnav-links">
+    <a href="{{ site.base }}/#cities">Города</a>
+    <a href="{{ site.repo }}">GitHub</a>
+  </div>
+</nav>
 {% block body %}{% endblock %}
 </div>
 <script src="{{ site.base }}/app.js" defer></script>

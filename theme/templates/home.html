@@ -1,45 +1,107 @@
 {% extends "base.html" %}
 {% block body %}
-<header class="hero">
-  <div class="kicker">Пешком · по трещинам</div>
-  <h1>{{ site.title }}</h1>
-  <p class="tagline">{{ site.tagline }}</p>
-  <div class="meta-line">{{ stats.cities }} города · {{ stats.routes }} маршрутов ·
-    {{ stats.points }} точек · {{ stats.stories }} историй вслух</div>
+<header class="hero-photo">
+  {% if hero_shot %}
+  <img class="hero-img" alt="" src="{{ hero_shot.src }}" srcset="{{ hero_shot.srcset }}" sizes="100vw">
+  {% endif %}
+  <div class="hero-shade"></div>
+  <div class="hero-inner">
+    <div class="kicker">Пешком · по трещинам</div>
+    <h1>Города, которых<br>не видно <em>с первого раза</em></h1>
+    <p class="tagline">Пешие маршруты по вещам, которые прячутся на виду.
+      У каждой точки — фото, история вслух и кнопка в навигатор.</p>
+    <div class="hero-acts">
+      <a class="btn-solid" href="#cities">Выбрать город</a>
+      <a class="btn-glass" href="#how">Как это устроено</a>
+    </div>
+  </div>
+  <div class="hero-stats">{{ stats.routes }} маршрутов · {{ stats.points }} точек<br>{{ stats.cities }} города · {{ stats.stories }} историй</div>
 </header>
 
 <main>
-  <div class="lead">
-    <p>{{ site.about }}</p>
-  </div>
-
-  <div class="cards">
-  {% for city in cities %}
-  <a class="city" href="{{ site.base }}/{{ city.id }}/">
-    {% set cover = city.routes|selectattr('cover')|map(attribute='cover')|first %}
-    {% if cover %}<img class="cover" loading="lazy" decoding="async" alt="" src="{{ cover }}">{% endif %}
-    <div class="card-body">
-      <div class="city-name">{{ city.name }}</div>
-      <div class="city-meta">
-        {{ city.routes|length }} маршрут{% if city.routes|length > 1 %}а{% endif %} ·
-        {{ city.routes|map(attribute='points')|map('length')|sum }} точек
+  <section class="sect" id="how">
+    <div class="sect-kicker">Как это устроено</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-n">01</div>
+        <div class="step-t">Выбираете маршрут</div>
+        <p>Не достопримечательности, а вещи, которые прячутся на виду:
+        фигурки, клейма, дворы, исчезнувшие орлы.</p>
       </div>
-      {% if city.note %}<div class="city-note">{{ city.note }}</div>{% endif %}
+      <div class="step">
+        <div class="step-n">02</div>
+        <div class="step-t">Сохраняете офлайн</div>
+        <p>Фото и тексты лягут в память телефона — дальше маршрут
+        работает без сети.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">03</div>
+        <div class="step-t">Идёте и находите</div>
+        <p>Отмечаете найденное, слушаете истории голосом автора,
+        жмёте «веду» — и телефон ведёт к следующей точке.</p>
+      </div>
     </div>
-  </a>
-  {% endfor %}
-  </div>
+  </section>
 
-  <div class="q">
-    <h3>Как это устроено</h3>
-    <p>Каждый маршрут можно сохранить в телефон целиком — фотографии и тексты лягут в память, и дальше он работает без сети. Кнопка внутри маршрута.</p>
-    <p>Половина этих объектов — временные. Если чего-то нет на месте, жмите «этого больше нет»: маршрут обновится.</p>
-  </div>
+  <section class="sect" id="cities">
+    <div class="sect-head">
+      <h2>Города</h2>
+      <span class="sect-note">{{ stats.cities }} · растём</span>
+    </div>
+    <div class="cards">
+    {% for city in cities %}
+    <a class="city" href="{{ site.base }}/{{ city.id }}/">
+      {% set cover = city.routes|selectattr('cover')|map(attribute='cover')|first %}
+      {% if cover %}<img class="cover" loading="lazy" decoding="async" alt="" src="{{ cover }}">{% endif %}
+      <div class="card-body">
+        <div class="city-name">{{ city.name }}</div>
+        <div class="city-meta">
+          {{ city.routes|length }} маршрут{% if city.routes|length > 1 %}а{% endif %} ·
+          {{ city.routes|map(attribute='points')|map('length')|sum }} точек
+        </div>
+        {% if city.tagline %}<div class="city-note">{{ city.tagline }}</div>{% endif %}
+      </div>
+    </a>
+    {% endfor %}
+    </div>
+  </section>
+
+  {% if gallery %}
+  <section class="sect">
+    <div class="sect-head">
+      <h2>Находки крупным планом</h2>
+      <span class="sect-note">размером с ладонь</span>
+    </div>
+    <div class="gallery">
+      {% for g in gallery %}
+      <figure class="g-item">
+        <img loading="lazy" decoding="async" alt="{{ g.name }}" src="{{ g.shot.src }}" srcset="{{ g.shot.srcset }}" sizes="(max-width:880px) 100vw, 350px">
+        <figcaption><b>{{ g.name }}</b><span>{{ g.addr }} · {{ g.city }}</span></figcaption>
+      </figure>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="sect">
+    <div class="panel">
+      <div class="sect-kicker">Честно</div>
+      <p>{{ site.about }}</p>
+      <p>Половина объектов — временные: их закрашивают и снимают. Если чего-то
+      нет на месте — жмите «этого больше нет», и маршрут обновится.</p>
+    </div>
+  </section>
 </main>
 
-<footer>
-  <b>Прогулки</b>
-  Собирается из markdown-файлов. Исходники и то, как добавить свой маршрут — на
-  <a href="{{ site.repo }}">GitHub</a>.
+<footer class="foot">
+  <div class="foot-brand">
+    <b>Прогулки</b>
+    <p>Города, которых не видно с первого раза. Открытый проект —
+    собирается из markdown на <a href="{{ site.repo }}">GitHub</a>.</p>
+  </div>
+  <div class="foot-col">
+    <span>Города</span>
+    {% for city in cities %}<a href="{{ site.base }}/{{ city.id }}/">{{ city.name }}</a>{% endfor %}
+  </div>
 </footer>
 {% endblock %}

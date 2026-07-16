@@ -9,7 +9,7 @@
 Контент лежит в content/<город>/<маршрут>.md, фото — в photos/<город>/<маршрут>/.
 Ничего больше знать не нужно: добавил файл, запустил, получил сайт.
 """
-import argparse, hashlib, json, os, re, shutil, sys, urllib.parse
+import argparse, hashlib, json, math, os, re, shutil, sys, urllib.parse
 from datetime import date
 
 import yaml
@@ -236,6 +236,18 @@ def build(serve=False):
             route["cover"] = next(
                 (p["shots"][0]["src"] for p in route["points"] if p.get("shots")), None)
 
+            # нормированные координаты для svg-схемы маршрута (viewBox 0 0 100 100)
+            pts = route["points"]
+            if pts:
+                la0, la1 = min(p["lat"] for p in pts), max(p["lat"] for p in pts)
+                lo0, lo1 = min(p["lon"] for p in pts), max(p["lon"] for p in pts)
+                kx = math.cos(math.radians((la0 + la1) / 2))
+                w, h = (lo1 - lo0) * kx, (la1 - la0)
+                scale = 82 / (max(w, h) or 1e-9)
+                for p in pts:
+                    p["mx"] = round(9 + (p["lon"] - lo0) * kx * scale + (82 - w * scale) / 2, 1)
+                    p["my"] = round(9 + (la1 - p["lat"]) * scale + (82 - h * scale) / 2, 1)
+
             size = sum(os.path.getsize(os.path.join(DIST, *u[len(BASE):].strip("/").split("/")))
                        for u in route["offline_urls"])
             mb = size / 1024 / 1024
@@ -265,7 +277,17 @@ def build(serve=False):
         "points": sum(r["n_points"] for c in cities for r in c["routes"]),
         "stories": sum(r["n_stories"] for c in cities for r in c["routes"]),
     }
-    html = env.get_template("home.html").render(site=site, cities=cities, stats=stats)
+    # галерея «находки крупным планом»: проверенные точки со своими фото
+    found = [{"shot": p["shots"][0], "name": p["name"], "addr": p["addr"],
+              "city": c["name"]}
+             for c in cities for r in c["routes"] for p in r["points"]
+             if p.get("shots") and p.get("checked")]
+    want = site.get("hero_photo") or ""
+    hero_shot = next((g["shot"] for g in found if want and want in g["shot"]["src"]),
+                     found[0]["shot"] if found else None)
+    gallery = [g for g in found if g["shot"] is not hero_shot][:3]
+    html = env.get_template("home.html").render(
+        site=site, cities=cities, stats=stats, gallery=gallery, hero_shot=hero_shot)
     open(os.path.join(DIST, "index.html"), "w", encoding="utf-8").write(html)
 
     # питч для партнёров — /pitch/, с главной на него ссылок нет
@@ -275,6 +297,12 @@ def build(serve=False):
     open(os.path.join(out, "index.html"), "w", encoding="utf-8").write(html)
 
     shutil.copy(os.path.join(THEME, "app.css"), os.path.join(DIST, "app.css"))
+    fonts_src = os.path.join(THEME, "fonts")
+    fonts = []
+    if os.path.isdir(fonts_src):
+        shutil.copytree(fonts_src, os.path.join(DIST, "fonts"))
+        fonts = [f"{BASE}/fonts/{fn}" for fn in sorted(os.listdir(fonts_src))
+                 if fn.endswith(".woff2")]
     app_js = open(os.path.join(THEME, "app.js"), encoding="utf-8").read().replace("__BASE__", BASE)
     open(os.path.join(DIST, "app.js"), "w", encoding="utf-8").write(app_js)
 
@@ -288,7 +316,7 @@ def build(serve=False):
     shutil.copy(os.path.join(THEME, "icon.svg"), os.path.join(DIST, "icon.svg"))
 
     core = [f"{BASE}/", f"{BASE}/app.css", f"{BASE}/app.js",
-            f"{BASE}/manifest.json", f"{BASE}/icon.svg"] + shell
+            f"{BASE}/manifest.json", f"{BASE}/icon.svg"] + fonts + shell
     sw = open(os.path.join(THEME, "sw.js"), encoding="utf-8").read()
     version = hashlib.sha1(json.dumps(core, sort_keys=True).encode()).hexdigest()[:8]
     sw = (sw.replace("__VERSION__", version)

@@ -2,26 +2,50 @@
 {% block title %}{{ route.title }} — {{ city.name }}{% endblock %}
 {% block desc %}{{ route.intro }}{% endblock %}
 {% block body %}
-<header class="hero route-hero">
-  <a class="back" href="{{ site.base }}/{{ city.id }}/">← {{ city.name }}</a>
-  <div class="kicker">{{ route.subtitle }}</div>
-  <h1>{{ route.title }}</h1>
-  <div class="meta-line">{{ route.meta }}</div>
-  <div class="progress"><b data-progress-num>0</b> из {{ route.points|length }} найдено</div>
-  <div class="bar"><i data-progress-bar></i></div>
+<header class="hero-photo{% if not route.cover %} plain{% endif %} hero-route">
+  {% if route.cover %}<img class="hero-img" alt="" src="{{ route.cover }}">{% endif %}
+  <div class="hero-shade"></div>
+  <div class="hero-inner">
+    <div class="crumbs"><a href="{{ site.base }}/{{ city.id }}/">{{ city.name }}</a> / {{ route.title }}</div>
+    <div class="kicker">{{ route.subtitle }}</div>
+    <h1>{{ route.title }}</h1>
+    <div class="chips">
+      {% for chunk in route.meta.split('·') %}<span>{{ chunk.strip() }}</span>{% endfor %}
+    </div>
+  </div>
 </header>
 
 <main data-route="{{ city.id }}/{{ route.id }}">
-  <div class="lead">
-    <p>{{ route.intro }}</p>
-    <div class="lead-acts">
-      <a class="allroute" target="_blank" rel="noopener" href="{{ route.points|ymaps_all }}">Весь маршрут в Яндексе →</a>
+  <div class="route-bar">
+    <div class="route-intro"><p>{{ route.intro }}</p></div>
+    <div class="route-save">
+      <div class="progress">
+        <span><b data-progress-num>0</b> из {{ route.points|length }} найдено</span>
+        {% if route.offline_urls %}<span class="mono-dim">офлайн · {{ route.offline_mb }} МБ</span>{% endif %}
+      </div>
+      <div class="bar"><i data-progress-bar></i></div>
       <button class="offline" data-offline='{{ route.offline_urls|tojson }}'>
         <span data-offline-label>Сохранить офлайн{% if route.offline_urls %} · {{ route.offline_mb }} МБ{% endif %}</span>
       </button>
+      <a class="allroute" target="_blank" rel="noopener" href="{{ route.points|ymaps_all }}">Весь маршрут в Яндексе →</a>
     </div>
   </div>
 
+  <div class="tour">
+    <aside class="scheme">
+      <div class="scheme-cap">Схема · {{ route.meta }}</div>
+      <svg viewBox="0 0 100 100" role="img" aria-label="Схема маршрута">
+        <polyline fill="none" stroke="currentColor" stroke-width="0.8" stroke-dasharray="2 2"
+          points="{% for p in route.points %}{{ p.mx }},{{ p.my }} {% endfor %}"/>
+        {% for p in route.points %}
+        <a href="#p{{ p.n }}"><circle cx="{{ p.mx }}" cy="{{ p.my }}" r="4"/>
+        <text x="{{ p.mx }}" y="{{ p.my }}" dy="1.4" text-anchor="middle">{% if p.mine %}+{% else %}{{ p.n }}{% endif %}</text></a>
+        {% endfor %}
+      </svg>
+      <div class="scheme-note">Кружки кликаются — прыгают к точке. Схема без подложки: масштаб честный, география примерная.</div>
+    </aside>
+
+    <div class="points">
   {% for p in route.points %}
   <article class="card{% if p.mine %} add{% endif %}{% if p.closed %} gone{% endif %}" id="p{{ p.n }}">
     <div class="head">
@@ -37,7 +61,7 @@
     {% if p.shots %}
     <div class="shots{% if p.shots|length == 1 %} one{% endif %}">
       {% for s in p.shots %}
-      <img loading="lazy" decoding="async" alt="" src="{{ s.src }}" srcset="{{ s.srcset }}" sizes="(max-width:640px) 100vw, 640px">
+      <img loading="lazy" decoding="async" alt="" src="{{ s.src }}" srcset="{{ s.srcset }}" sizes="(max-width:880px) 100vw, 680px">
       {% endfor %}
     </div>
     {% if p.shots|length > 1 %}
@@ -98,18 +122,22 @@
     </div>
   </article>
   {% endfor %}
+    </div>
+  </div>
 
   {% if route.coffee %}
-  <div class="coffee">
+  <div class="coffee panel">
     <b>Где сесть</b>
     <p>{{ route.coffee }}</p>
   </div>
   {% endif %}
 </main>
 
-<footer>
-  <b>Прогулки</b>
-  Половина этих объектов — временные. Если чего-то не нашли, жмите «этого больше нет» — маршрут обновится.
-  <a href="{{ site.repo }}">Исходники</a>
+<footer class="foot">
+  <div class="foot-brand">
+    <b>Прогулки</b>
+    <p>Половина этих объектов — временные. Если чего-то не нашли, жмите
+    «этого больше нет» — маршрут обновится. <a href="{{ site.repo }}">Исходники</a>.</p>
+  </div>
 </footer>
 {% endblock %}

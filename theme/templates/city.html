@@ -2,10 +2,19 @@
 {% block title %}{{ city.name }} — {{ site.title }}{% endblock %}
 {% block desc %}{{ city.tagline or site.tagline }}{% endblock %}
 {% block body %}
-<header class="hero">
-  <a class="back" href="{{ site.base }}/">← все города</a>
-  <h1>{{ city.name }}</h1>
-  {% if city.tagline %}<p class="tagline">{{ city.tagline }}</p>{% endif %}
+{% set cover = city.routes|selectattr('cover')|map(attribute='cover')|first %}
+<header class="hero-photo{% if not cover %} plain{% endif %} hero-city">
+  {% if cover %}<img class="hero-img" alt="" src="{{ cover }}">{% endif %}
+  <div class="hero-shade"></div>
+  <div class="hero-inner">
+    <div class="crumbs"><a href="{{ site.base }}/">Города</a> / {{ city.name }}</div>
+    {% if city.tagline %}<div class="kicker">{{ city.tagline }}</div>{% endif %}
+    <h1>{{ city.name }}</h1>
+    <div class="chips">
+      <span>{{ city.routes|length }} маршрут{% if city.routes|length > 1 %}а{% endif %}</span>
+      <span>{{ city.routes|map(attribute='points')|map('length')|sum }} точек</span>
+    </div>
+  </div>
 </header>
 
 <main>
@@ -13,44 +22,65 @@
   <div class="lead"><p>{{ city.intro }}</p></div>
   {% endif %}
 
-  <div class="cards">
-  {% for r in city.routes %}
-  <a class="route" href="{{ site.base }}/{{ city.id }}/{{ r.id }}/">
-    {% if r.cover %}<img class="cover" loading="lazy" decoding="async" alt="" src="{{ r.cover }}">{% endif %}
-    <div class="card-body">
-      <div class="route-sub">{{ r.subtitle }}</div>
-      <div class="route-title">{{ r.title }}</div>
-      <div class="route-meta">{{ r.meta }}</div>
-      <div class="route-nums">
-        <span>{{ r.points|length }} точек</span>
-        {% set ns = r.points|selectattr('story')|list|length %}
-        {% if ns %}<span>{{ ns }} историй вслух</span>{% endif %}
+  <section class="sect">
+    <div class="sect-head">
+      <h2>Маршруты</h2>
+      <span class="sect-note">выберите прогулку</span>
+    </div>
+    <div class="cards">
+    {% for r in city.routes %}
+    <a class="route" href="{{ site.base }}/{{ city.id }}/{{ r.id }}/">
+      {% if r.cover %}<img class="cover" loading="lazy" decoding="async" alt="" src="{{ r.cover }}">{% endif %}
+      <div class="card-body">
+        <div class="route-sub">{{ r.subtitle }}</div>
+        <div class="route-title">{{ r.title }}</div>
+        <div class="route-meta">{{ r.meta }}</div>
+        <div class="route-nums">
+          <span>{{ r.points|length }} точек</span>
+          {% set ns = r.points|selectattr('story')|list|length %}
+          {% if ns %}<span>{{ ns }} историй вслух</span>{% endif %}
+        </div>
+        <span class="route-open">Открыть маршрут →</span>
       </div>
-    </div>
-  </a>
-  {% endfor %}
+    </a>
+    {% endfor %}
 
-  {% if city.quests %}
-  <a class="route quests-link" href="{{ site.base }}/{{ city.id }}/quests/">
-    <div class="card-body">
-      <div class="route-sub">Через весь город</div>
-      <div class="route-title">{{ city.quests.title }}</div>
-      <div class="route-meta">{{ city.quests.quests|length }} коллекции, которые собирают годами</div>
+    {% if city.quests %}
+    <a class="route quests-link" href="{{ site.base }}/{{ city.id }}/quests/">
+      <div class="card-body">
+        <div class="route-sub">Через весь город</div>
+        <div class="route-title">{{ city.quests.title }}</div>
+        <div class="route-meta">{{ city.quests.quests|length }} коллекции, которые собирают годами</div>
+        <span class="route-open">Открыть квесты →</span>
+      </div>
+    </a>
+    {% endif %}
     </div>
-  </a>
-  {% endif %}
-  </div>
+  </section>
+
+  <section class="sect">
+    <div class="panel">
+      <div class="sect-kicker">Как это работает</div>
+      <p>Каждый маршрут сохраняется в телефон целиком — фото и тексты работают
+      без сети. Половина объектов временные: не нашли — жмите «этого больше
+      нет», маршрут обновится.</p>
+    </div>
+  </section>
 
   {% if not city.routes %}
-  <div class="q">
-    <h3>Маршрутов пока нет</h3>
-    <p>Положите файл в <code>content/{{ city.id }}/</code>, фотографии — в <code>photos/{{ city.id }}/</code>, и запустите сборку.</p>
+  <div class="panel">
+    <div class="sect-kicker">Маршрутов пока нет</div>
+    <p>Положите файл в <code>content/{{ city.id }}/</code>, фотографии —
+    в <code>photos/{{ city.id }}/</code>, и запустите сборку.</p>
   </div>
   {% endif %}
 </main>
 
-<footer>
-  <b>Прогулки</b>
-  <a href="{{ site.repo }}">Исходники на GitHub</a>
+<footer class="foot">
+  <div class="foot-brand">
+    <b>Прогулки</b>
+    <p>Города, которых не видно с первого раза.
+    <a href="{{ site.repo }}">Исходники на GitHub</a>.</p>
+  </div>
 </footer>
 {% endblock %}
