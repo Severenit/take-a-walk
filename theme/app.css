@@ -223,7 +223,9 @@ footer a{color:var(--rust)}
   .route-title{font-size:23px}
   .card{max-width:700px;margin:26px auto}
   .q{max-width:700px;margin:26px auto}
-  .shots:not(.one) img{flex:0 0 50%}
+  .shots:not(.one){display:grid;grid-template-columns:repeat(2,1fr);gap:2px;overflow:visible}
+  .shots:not(.one) img{width:100%;flex:none}
+  .swipe{display:none}
   .titles h3{font-size:21px}
   .body p{font-size:17px}
   .story p{font-size:16.5px}
