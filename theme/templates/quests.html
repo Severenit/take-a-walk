@@ -30,6 +30,8 @@
           </div>
           {% endif %}
           {% if it.note %}<div class="qi-note">{{ it.note }}</div>{% endif %}
+          {% if it.shot %}<img class="qi-photo" loading="lazy" decoding="async" alt=""
+            src="{{ it.shot.src }}" srcset="{{ it.shot.srcset }}" sizes="(max-width:880px) 86vw, 400px">{% endif %}
         </div>
       </li>
       {% endfor %}

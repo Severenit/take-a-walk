@@ -117,6 +117,38 @@ def normalize_quests(q, city_name, path):
             quest["score"] = f"Найдено {n} из {len(norm)}"
 
 
+def process_quest_photos(city, BASE=""):
+    """Фото у пунктов квестов: photos/<город>/quests/<файл> → dist/img/<город>/quests/."""
+    if not city.get("quests"):
+        return
+    src_dir = os.path.join(PHOTOS, city["id"], "quests")
+    if not os.path.isdir(src_dir):
+        return
+    out_dir = os.path.join(DIST, "img", city["id"], "quests")
+    os.makedirs(out_dir, exist_ok=True)
+    for quest in city["quests"].get("quests") or []:
+        for it in quest.get("items") or []:
+            fn = it.get("photo")
+            if not fn:
+                continue
+            src = os.path.join(src_dir, fn)
+            if not os.path.exists(src):
+                print(f"  ! нет файла {city['id']}/quests/{fn}")
+                continue
+            im = ImageOps.exif_transpose(Image.open(src)).convert("RGB")
+            stem = os.path.splitext(fn)[0]
+            srcset = []
+            for w in WIDTHS:
+                ow, oh = im.size
+                r = im if ow <= w else im.resize((w, round(oh * w / ow)), Image.LANCZOS)
+                name = f"{stem}-{w}.jpg"
+                r.save(os.path.join(out_dir, name), "JPEG",
+                       quality=QUALITY, optimize=True, progressive=True)
+                srcset.append((f"{BASE}/img/{city['id']}/quests/{name}", w))
+            it["shot"] = {"src": srcset[0][0],
+                          "srcset": ", ".join(f"{u} {w}w" for u, w in srcset)}
+
+
 def load_city(city_dir):
     city = yaml.safe_load(open(os.path.join(city_dir, "city.yml"), encoding="utf-8"))
     city["id"] = os.path.basename(city_dir)
@@ -235,6 +267,8 @@ def build(serve=False):
             route["n_stories"] = sum(1 for p in route["points"] if p["story"])
             route["cover"] = next(
                 (p["shots"][0]["src"] for p in route["points"] if p.get("shots")), None)
+        process_quest_photos(city, BASE)
+        for route in city["routes"]:
 
             # нормированные координаты для svg-схемы маршрута (viewBox 0 0 100 100)
             pts = route["points"]
