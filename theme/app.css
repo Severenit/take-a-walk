@@ -158,6 +158,12 @@ code{font:500 13px/1 var(--mono);background:var(--card);padding:2px 5px;border-r
   background-image:linear-gradient(var(--hair) 1px,transparent 1px),
     linear-gradient(90deg,var(--hair) 1px,transparent 1px);
   background-size:14.29% 14.29%}
+.m-park{fill:rgba(169,108,18,.10);stroke:none}
+.m-water{fill:rgba(47,53,59,.15);stroke:none}
+.m-water-line{fill:none;stroke:rgba(47,53,59,.30);stroke-width:.7}
+.m-rail{fill:none;stroke:rgba(30,26,21,.25);stroke-width:.45;stroke-dasharray:2 1.2}
+.m-lane{fill:none;stroke:rgba(30,26,21,.10);stroke-width:.35}
+.m-road{fill:none;stroke:rgba(30,26,21,.22);stroke-width:.8}
 .scheme circle{fill:var(--rust)}
 .scheme a:hover circle{fill:var(--rust-d)}
 .scheme text{fill:var(--cream-2);font:600 4.2px var(--sans)}

@@ -117,6 +117,48 @@ def normalize_quests(q, city_name, path):
             quest["score"] = f"Найдено {n} из {len(norm)}"
 
 
+def render_map_layers(data, tx):
+    """Слои подложки OSM → path-строки в координатах схемы (viewBox 0 0 100)."""
+    def d_of(lines, close_only=None, cap=60000):
+        segs, total = [], 0
+        for line in lines:
+            xy = [tx(la, lo) for la, lo in line]
+            if all(x < -5 or x > 105 or y < -5 or y > 105 for x, y in xy):
+                continue
+            closed = line[0] == line[-1]
+            if close_only is True and not closed:
+                continue
+            if close_only is False and closed:
+                continue
+            pts, prev = [], None
+            for x, y in xy:
+                cur = (round(x, 1), round(y, 1))
+                if cur != prev:
+                    pts.append(cur)
+                    prev = cur
+            if len(pts) < 2:
+                continue
+            seg = "M" + "L".join(f"{x} {y}" for x, y in pts)
+            if closed:
+                seg += "Z"
+            total += len(seg)
+            if total > cap:
+                break
+            segs.append(seg)
+        return "".join(segs)
+
+    L = data.get("layers", {})
+    out = {
+        "water_fill": d_of(L.get("water", []), close_only=True),
+        "water_line": d_of(L.get("water", []), close_only=False),
+        "park": d_of(L.get("park", []), close_only=True),
+        "road": d_of(L.get("road", [])),
+        "lane": d_of(L.get("lane", [])),
+        "rail": d_of(L.get("rail", [])),
+    }
+    return out if any(out.values()) else None
+
+
 def process_quest_photos(city, BASE=""):
     """Фото у пунктов квестов: photos/<город>/quests/<файл> → dist/img/<город>/quests/."""
     if not city.get("quests"):
@@ -272,15 +314,38 @@ def build(serve=False):
 
             # нормированные координаты для svg-схемы маршрута (viewBox 0 0 100 100)
             pts = route["points"]
+            route["map"] = None
             if pts:
                 la0, la1 = min(p["lat"] for p in pts), max(p["lat"] for p in pts)
                 lo0, lo1 = min(p["lon"] for p in pts), max(p["lon"] for p in pts)
                 kx = math.cos(math.radians((la0 + la1) / 2))
                 w, h = (lo1 - lo0) * kx, (la1 - la0)
                 scale = 82 / (max(w, h) or 1e-9)
+                xoff = 9 + (82 - w * scale) / 2
+                yoff = 9 + (82 - h * scale) / 2
+
+                def tx(lat, lon):
+                    return (xoff + (lon - lo0) * kx * scale,
+                            yoff + (la1 - lat) * scale)
+
+                placed = []
                 for p in pts:
-                    p["mx"] = round(9 + (p["lon"] - lo0) * kx * scale + (82 - w * scale) / 2, 1)
-                    p["my"] = round(9 + (la1 - p["lat"]) * scale + (82 - h * scale) / 2, 1)
+                    x, y = tx(p["lat"], p["lon"])
+                    # раздвинуть совпадающие/слипшиеся точки
+                    for qx, qy in placed:
+                        dx, dy = x - qx, y - qy
+                        d = (dx * dx + dy * dy) ** .5
+                        if d < 7:
+                            if d < .01:
+                                dx, dy, d = 1.0, -1.0, 2 ** .5
+                            x, y = qx + dx / d * 7, qy + dy / d * 7
+                    p["mx"], p["my"] = round(x, 1), round(y, 1)
+                    placed.append((x, y))
+
+                mp = os.path.join(CONTENT, city["id"], "_map", route["id"] + ".json")
+                if os.path.exists(mp):
+                    route["map"] = render_map_layers(
+                        json.load(open(mp, encoding="utf-8")), tx)
 
             size = sum(os.path.getsize(os.path.join(DIST, *u[len(BASE):].strip("/").split("/")))
                        for u in route["offline_urls"])
