@@ -62,6 +62,7 @@ python3 build.py --serve    # localhost:8000
 ссылку-поиск, счёт «Найдено X из Y» считается сам (поле `score` перекрывает).
 Поле `how` у квеста — блок «Как проходить». Пустой кружок у пункта пользователь
 отмечает сам (localStorage `progulki:qfound`), `have: yes` — красная галочка автора.
+Поле `photo` у пункта — файл из `photos/<город>/quests/`, рендерится карточкой.
 
 Деплой: пуш в `main` → GitHub Action (`.github/workflows/deploy.yml`) собирает
 и выкладывает `dist/` на Pages.
