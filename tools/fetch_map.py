@@ -110,3 +110,35 @@ if __name__ == "__main__":
             continue
         fetch(city, rid, path)
         time.sleep(3)
+
+
+def fetch_walk(city, rid, path):
+    """Пешая нитка по улицам через OSRM — дописывается в существующий json."""
+    out = os.path.join(CONTENT, city, "_map", f"{rid}.json")
+    if not os.path.exists(out):
+        print(f"  {city}/{rid}: нет json подложки, сначала скачайте её")
+        return
+    pts = [(float(a), float(b)) for a, b in GEO_RE.findall(open(path, encoding="utf-8").read())]
+    coords = ";".join(f"{lon},{lat}" for lat, lon in pts)
+    url = (f"https://routing.openstreetmap.de/routed-foot/route/v1/foot/{coords}"
+           "?overview=full&geometries=geojson&steps=false")
+    import subprocess
+    try:
+        raw = subprocess.run(
+            ["curl", "-s", "--max-time", "60",
+             "-A", "progulki-guide/1.0 (severenit@gmail.com)", url],
+            capture_output=True, check=True).stdout
+        data = json.loads(raw)
+    except Exception as e:
+        print(f"  {city}/{rid}: OSRM не ответил ({e})")
+        return
+    if data.get("code") != "Ok" or not data.get("routes"):
+        print(f"  {city}/{rid}: OSRM code={data.get('code')}")
+        return
+    walk = [[round(la, 5), round(lo, 5)]
+            for lo, la in data["routes"][0]["geometry"]["coordinates"]]
+    j = json.load(open(out, encoding="utf-8"))
+    j["walk"] = walk
+    json.dump(j, open(out, "w"), separators=(",", ":"))
+    km = data["routes"][0]["distance"] / 1000
+    print(f"  {city}/{rid}: нитка {len(walk)} точек, {km:.1f} км")

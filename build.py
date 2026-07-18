@@ -344,8 +344,21 @@ def build(serve=False):
 
                 mp = os.path.join(CONTENT, city["id"], "_map", route["id"] + ".json")
                 if os.path.exists(mp):
-                    route["map"] = render_map_layers(
-                        json.load(open(mp, encoding="utf-8")), tx)
+                    mdata = json.load(open(mp, encoding="utf-8"))
+                    route["map"] = render_map_layers(mdata, tx)
+                    if route["map"] is not None and mdata.get("walk"):
+                        wpts, prev = [], None
+                        for la, lo in mdata["walk"]:
+                            x, y = tx(la, lo)
+                            cur = (round(x, 1), round(y, 1))
+                            if cur != prev:
+                                wpts.append(cur)
+                                prev = cur
+                        if len(wpts) > 1:
+                            route["map"]["walk"] = "M" + "L".join(
+                                f"{x} {y}" for x, y in wpts)
+                route["geo_params"] = (f"{la1:.6f},{lo0:.6f},{kx:.6f},"
+                                       f"{scale:.4f},{xoff:.2f},{yoff:.2f}")
 
             size = sum(os.path.getsize(os.path.join(DIST, *u[len(BASE):].strip("/").split("/")))
                        for u in route["offline_urls"])

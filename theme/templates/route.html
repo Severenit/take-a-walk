@@ -34,7 +34,7 @@
   <div class="tour">
     <aside class="scheme">
       <div class="scheme-cap">Схема · {{ route.meta }}</div>
-      <svg viewBox="0 0 100 100" role="img" aria-label="Схема маршрута">
+      <svg viewBox="0 0 100 100" role="img" aria-label="Схема маршрута"{% if route.geo_params %} data-geo="{{ route.geo_params }}"{% endif %}>
         {% if route.map %}
         {% if route.map.park %}<path class="m-park" d="{{ route.map.park }}"/>{% endif %}
         {% if route.map.water_fill %}<path class="m-water" d="{{ route.map.water_fill }}"/>{% endif %}
@@ -43,14 +43,20 @@
         {% if route.map.lane %}<path class="m-lane" d="{{ route.map.lane }}"/>{% endif %}
         {% if route.map.road %}<path class="m-road" d="{{ route.map.road }}"/>{% endif %}
         {% endif %}
+        {% if route.map and route.map.walk %}
+        <path class="m-walk" d="{{ route.map.walk }}"/>
+        {% else %}
         <polyline fill="none" stroke="currentColor" stroke-width="1.1" stroke-dasharray="2 1.6"
           points="{% for p in route.points %}{{ p.mx }},{{ p.my }} {% endfor %}"/>
+        {% endif %}
         {% for p in route.points %}
         <a href="#p{{ p.n }}"><circle cx="{{ p.mx }}" cy="{{ p.my }}" r="4"/>
         <text x="{{ p.mx }}" y="{{ p.my }}" dy="1.4" text-anchor="middle">{% if p.mine %}+{% else %}{{ p.n }}{% endif %}</text></a>
         {% endfor %}
+        <circle class="me" r="2.6" cx="-10" cy="-10" hidden="hidden"/>
       </svg>
-      <div class="scheme-note">Кружки кликаются — прыгают к точке.{% if route.map %} Подложка — данные © участников OpenStreetMap.{% else %} Схема без подложки: масштаб честный, география примерная.{% endif %}</div>
+      <button class="locate" type="button" data-locate>Где я на схеме?</button>
+      <div class="scheme-note">Кружки кликаются — прыгают к точке.{% if route.map %}{% if route.map.walk %} Нитка — пеший путь по улицам, проложен заранее.{% endif %} Данные карты © участников OpenStreetMap.{% else %} Схема без подложки: масштаб честный, география примерная.{% endif %}</div>
     </aside>
 
     <div class="points">

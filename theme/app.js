@@ -51,6 +51,38 @@
     });
   });
 
+  // ---------- «где я» на схеме ----------
+  var geoSvg = document.querySelector('.scheme svg[data-geo]');
+  var locBtn = document.querySelector('[data-locate]');
+  if (geoSvg && locBtn && 'geolocation' in navigator) {
+    var g = geoSvg.dataset.geo.split(',').map(Number); // la1, lo0, kx, scale, xoff, yoff
+    var meDot = geoSvg.querySelector('.me');
+    var watching = false;
+    locBtn.addEventListener('click', function () {
+      if (watching) return;
+      watching = true;
+      locBtn.textContent = 'Ищу вас…';
+      navigator.geolocation.watchPosition(function (pos) {
+        var x = g[4] + (pos.coords.longitude - g[1]) * g[2] * g[3];
+        var y = g[5] + (g[0] - pos.coords.latitude) * g[3];
+        if (x < -2 || x > 102 || y < -2 || y > 102) {
+          meDot.setAttribute('hidden', 'hidden');
+          locBtn.textContent = 'Вы пока за пределами схемы';
+          return;
+        }
+        meDot.removeAttribute('hidden');
+        meDot.setAttribute('cx', x.toFixed(1));
+        meDot.setAttribute('cy', y.toFixed(1));
+        locBtn.textContent = 'Вы — тёмная точка';
+      }, function () {
+        watching = false;
+        locBtn.textContent = 'Геолокация недоступна';
+      }, { enableHighAccuracy: true, maximumAge: 5000 });
+    });
+  } else if (locBtn) {
+    locBtn.hidden = true;
+  }
+
   // ---------- аудио-истории ----------
   var playing = null;
   [].slice.call(document.querySelectorAll('[data-player]')).forEach(function (el) {

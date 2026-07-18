@@ -168,6 +168,13 @@ code{font:500 13px/1 var(--mono);background:var(--card);padding:2px 5px;border-r
 .scheme a:hover circle{fill:var(--rust-d)}
 .scheme text{fill:var(--cream-2);font:600 4.2px var(--sans)}
 .scheme-note{margin-top:10px;color:var(--muted);font-size:12.5px;line-height:1.5}
+.m-walk{fill:none;stroke:currentColor;stroke-width:1.1;stroke-dasharray:2 1.6;stroke-linecap:round}
+.me{fill:var(--dark);stroke:var(--cream);stroke-width:1;animation:mePulse 2s ease-in-out infinite}
+@keyframes mePulse{0%,100%{opacity:1}50%{opacity:.45}}
+.locate{display:block;width:100%;margin-top:12px;cursor:pointer;
+  border:1px dashed rgba(30,26,21,.3);border-radius:100px;background:transparent;
+  padding:11px;font:600 13px/1 var(--sans);color:var(--muted-2)}
+.locate:active{transform:translateY(1px)}
 
 /* --- карточка точки --- */
 .card{margin:0 0 22px;background:var(--card);border:1px solid var(--hair);
