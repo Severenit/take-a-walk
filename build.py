@@ -149,6 +149,7 @@ def render_map_layers(data, tx):
 
     L = data.get("layers", {})
     out = {
+        "bld": d_of(L.get("bld", []), close_only=True, cap=90000),
         "water_fill": d_of(L.get("water", []), close_only=True),
         "water_line": d_of(L.get("water", []), close_only=False),
         "park": d_of(L.get("park", []), close_only=True),
@@ -335,10 +336,10 @@ def build(serve=False):
                     for qx, qy in placed:
                         dx, dy = x - qx, y - qy
                         d = (dx * dx + dy * dy) ** .5
-                        if d < 7:
+                        if d < 4.5:
                             if d < .01:
                                 dx, dy, d = 1.0, -1.0, 2 ** .5
-                            x, y = qx + dx / d * 7, qy + dy / d * 7
+                            x, y = qx + dx / d * 4.5, qy + dy / d * 4.5
                     p["mx"], p["my"] = round(x, 1), round(y, 1)
                     placed.append((x, y))
 

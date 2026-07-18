@@ -36,6 +36,7 @@
       <div class="scheme-cap">Схема · {{ route.meta }}</div>
       <svg viewBox="0 0 100 100" role="img" aria-label="Схема маршрута"{% if route.geo_params %} data-geo="{{ route.geo_params }}"{% endif %}>
         {% if route.map %}
+        {% if route.map.bld %}<path class="m-bld" d="{{ route.map.bld }}"/>{% endif %}
         {% if route.map.park %}<path class="m-park" d="{{ route.map.park }}"/>{% endif %}
         {% if route.map.water_fill %}<path class="m-water" d="{{ route.map.water_fill }}"/>{% endif %}
         {% if route.map.water_line %}<path class="m-water-line" d="{{ route.map.water_line }}"/>{% endif %}
@@ -44,7 +45,7 @@
         {% if route.map.road %}<path class="m-road" d="{{ route.map.road }}"/>{% endif %}
         {% endif %}
         {% if route.map and route.map.walk %}
-        <path class="m-walk" d="{{ route.map.walk }}"/>
+        <path class="m-walk" fill="none" stroke="currentColor" stroke-width="1.1" stroke-dasharray="2 1.6" stroke-linecap="round" d="{{ route.map.walk }}"/>
         {% else %}
         <polyline fill="none" stroke="currentColor" stroke-width="1.1" stroke-dasharray="2 1.6"
           points="{% for p in route.points %}{{ p.mx }},{{ p.my }} {% endfor %}"/>
