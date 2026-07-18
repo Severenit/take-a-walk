@@ -166,8 +166,10 @@ code{font:500 13px/1 var(--mono);background:var(--card);padding:2px 5px;border-r
 .m-lane{fill:none;stroke:rgba(30,26,21,.10);stroke-width:.35}
 .m-road{fill:none;stroke:rgba(30,26,21,.22);stroke-width:.8}
 .scheme circle{fill:var(--rust)}
+.scheme .leader{stroke:var(--rust);stroke-width:.5;opacity:.5}
+.scheme circle.anchor{opacity:.5}
 .scheme a:hover circle{fill:var(--rust-d)}
-.scheme text{fill:var(--cream-2);font:600 4.2px var(--sans)}
+.scheme text{fill:var(--cream-2);font:600 3.8px var(--sans)}
 .scheme-note{margin-top:10px;color:var(--muted);font-size:12.5px;line-height:1.5}
 .m-walk{fill:none;stroke:currentColor;stroke-width:1.1;stroke-dasharray:2 1.6;stroke-linecap:round}
 .me{fill:var(--dark);stroke:var(--cream);stroke-width:1;animation:mePulse 2s ease-in-out infinite}

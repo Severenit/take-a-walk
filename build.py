@@ -332,6 +332,7 @@ def build(serve=False):
                 placed = []
                 for p in pts:
                     x, y = tx(p["lat"], p["lon"])
+                    ox, oy = x, y
                     # раздвинуть совпадающие/слипшиеся точки
                     for qx, qy in placed:
                         dx, dy = x - qx, y - qy
@@ -341,6 +342,8 @@ def build(serve=False):
                                 dx, dy, d = 1.0, -1.0, 2 ** .5
                             x, y = qx + dx / d * 4.5, qy + dy / d * 4.5
                     p["mx"], p["my"] = round(x, 1), round(y, 1)
+                    if ((x - ox) ** 2 + (y - oy) ** 2) ** .5 > 2.5:
+                        p["lx"], p["ly"] = round(ox, 1), round(oy, 1)
                     placed.append((x, y))
 
                 mp = os.path.join(CONTENT, city["id"], "_map", route["id"] + ".json")

@@ -50,9 +50,12 @@
         <polyline fill="none" stroke="currentColor" stroke-width="1.1" stroke-dasharray="2 1.6"
           points="{% for p in route.points %}{{ p.mx }},{{ p.my }} {% endfor %}"/>
         {% endif %}
+        {% for p in route.points %}{% if p.lx %}
+        <line class="leader" x1="{{ p.lx }}" y1="{{ p.ly }}" x2="{{ p.mx }}" y2="{{ p.my }}"/><circle class="anchor" cx="{{ p.lx }}" cy="{{ p.ly }}" r="0.9"/>
+        {% endif %}{% endfor %}
         {% for p in route.points %}
-        <a href="#p{{ p.n }}"><circle cx="{{ p.mx }}" cy="{{ p.my }}" r="4"/>
-        <text x="{{ p.mx }}" y="{{ p.my }}" dy="1.4" text-anchor="middle">{% if p.mine %}+{% else %}{{ p.n }}{% endif %}</text></a>
+        <a href="#p{{ p.n }}"><circle cx="{{ p.mx }}" cy="{{ p.my }}" r="3.5"/>
+        <text x="{{ p.mx }}" y="{{ p.my }}" dy="1.3" text-anchor="middle">{% if p.mine %}+{% else %}{{ p.n }}{% endif %}</text></a>
         {% endfor %}
         <circle class="me" r="2.6" cx="-10" cy="-10" hidden="hidden"/>
       </svg>
