@@ -51,6 +51,7 @@ def fetch(city, rid, path):
   way["leisure"~"^(park|garden)$"]({bbox});
   way["landuse"~"^(forest|grass|cemetery)$"]({bbox});
   way["railway"="rail"]({bbox});
+  way["building"]({bbox});
 );
 out geom;"""
     data = None
@@ -69,7 +70,7 @@ out geom;"""
         print(f"  {city}/{rid}: НЕ СКАЧАЛОСЬ, пропуск")
         return
 
-    layers = {"water": [], "park": [], "road": [], "lane": [], "rail": []}
+    layers = {"water": [], "park": [], "road": [], "lane": [], "rail": [], "bld": []}
     for el in data.get("elements", []):
         geom = el.get("geometry")
         if not geom:
@@ -79,7 +80,12 @@ out geom;"""
         # прореживание: каждая ~вторая точка на длинных путях
         if len(line) > 60:
             line = line[::2]
-        if "highway" in tags:
+        if "building" in tags:
+            las = [g[0] for g in line]; los = [g[1] for g in line]
+            if max(las) - min(las) < 0.00012 and max(los) - min(los) < 0.00018:
+                continue  # сараи и будки не рисуем
+            key = "bld"
+        elif "highway" in tags:
             key = "road" if tags["highway"] in MAJOR else "lane"
         elif tags.get("railway") == "rail":
             key = "rail"
