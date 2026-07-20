@@ -118,6 +118,21 @@ h2{margin:0 0 14px;font:600 32px/1.1 var(--serif);color:var(--ink)}
 .speed b{display:block;margin-bottom:9px;color:var(--cream);font:600 22px/1.2 var(--serif)}
 .speed p{margin:0;font-size:15px;line-height:1.55;max-width:none;color:rgba(248,241,228,.92)}
 
+.mapdemo{margin:22px 0 4px;background:var(--card);border:1px solid var(--hair);border-radius:16px;padding:16px}
+.mapdemo .mcap{font:500 10.5px/1.5 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--rust);margin-bottom:10px}
+.mapdemo svg{display:block;width:100%;aspect-ratio:1;color:var(--rust);background:var(--panel);border-radius:12px}
+.mapdemo .m-bld{fill:rgba(30,26,21,.055)}
+.mapdemo .m-park{fill:rgba(169,108,18,.10)}
+.mapdemo .m-water{fill:rgba(47,53,59,.15)}
+.mapdemo .m-water-line{fill:none;stroke:rgba(47,53,59,.30);stroke-width:.7}
+.mapdemo .m-rail{fill:none;stroke:rgba(30,26,21,.25);stroke-width:.45;stroke-dasharray:2 1.2}
+.mapdemo .m-lane{fill:none;stroke:rgba(30,26,21,.10);stroke-width:.35}
+.mapdemo .m-road{fill:none;stroke:rgba(30,26,21,.22);stroke-width:.8}
+.mapdemo circle{fill:var(--rust)}
+.mapdemo .leader{stroke:var(--rust);stroke-width:.5;opacity:.5}
+.mapdemo circle.anchor{opacity:.5}
+.mapdemo text{fill:var(--cream-2);font:600 3.8px var(--sans)}
+.mapdemo .mnote{margin-top:10px;color:var(--muted);font-size:13px;line-height:1.5}
 footer{margin:36px 12px 24px;padding:30px 26px;background:var(--dark);border-radius:18px;
   color:#8C8171;font:400 14px/1.8 var(--sans)}
 footer b{display:block;color:var(--paper);margin-bottom:6px;font:600 22px/1.2 var(--serif)}
@@ -252,6 +267,30 @@ footer a{color:var(--amber-l)}
     <p>Маршрут — это один текстовый файл и папка фотографий. Калининград и Зеленоградск появились на сайте за вечер каждый — это видно в истории проекта. Со стороны партнёра не нужно ни разработки, ни приложения: ссылка и QR.</p>
   </div>
 </section>
+
+{% if demo and demo.map %}
+<section class="sec">
+  <div class="eyebrow">Свои карты</div>
+  <h2>Карта, которая никого не отвлекает</h2>
+  <p>Схема каждого маршрута рисуется автоматически из открытых данных OpenStreetMap — в палитре проекта: улицы, дома, парки и пешая нитка, проложенная заранее. Ни рекламы, ни чужого брендинга, работает офлайн. Найденные точки гаснут, а кнопка «Где я?» показывает гуляющего прямо на схеме.</p>
+  <div class="mapdemo">
+    <div class="mcap">Живой пример · Зеленоградск, «{{ demo.title }}» · {{ demo.points|length }} точек</div>
+    <svg viewBox="0 0 100 100" role="img" aria-label="Схема маршрута">
+      {% if demo.map.bld %}<path class="m-bld" d="{{ demo.map.bld }}"/>{% endif %}
+      {% if demo.map.park %}<path class="m-park" d="{{ demo.map.park }}"/>{% endif %}
+      {% if demo.map.water_fill %}<path class="m-water" d="{{ demo.map.water_fill }}"/>{% endif %}
+      {% if demo.map.water_line %}<path class="m-water-line" d="{{ demo.map.water_line }}"/>{% endif %}
+      {% if demo.map.rail %}<path class="m-rail" d="{{ demo.map.rail }}"/>{% endif %}
+      {% if demo.map.lane %}<path class="m-lane" d="{{ demo.map.lane }}"/>{% endif %}
+      {% if demo.map.road %}<path class="m-road" d="{{ demo.map.road }}"/>{% endif %}
+      {% if demo.map.walk %}<path fill="none" stroke="currentColor" stroke-width="1.1" stroke-dasharray="2 1.6" stroke-linecap="round" d="{{ demo.map.walk }}"/>{% endif %}
+      {% for p in demo.points %}{% if p.lx %}<line class="leader" x1="{{ p.lx }}" y1="{{ p.ly }}" x2="{{ p.mx }}" y2="{{ p.my }}"/><circle class="anchor" cx="{{ p.lx }}" cy="{{ p.ly }}" r="0.9"/>{% endif %}{% endfor %}
+      {% for p in demo.points %}<circle cx="{{ p.mx }}" cy="{{ p.my }}" r="3.5"/><text x="{{ p.mx }}" y="{{ p.my }}" dy="1.3" text-anchor="middle">{{ p.n }}</text>{% endfor %}
+    </svg>
+    <div class="mnote">Это не картинка, а настоящая схема с сайта: строится при сборке из geo-координат точек, весит как одна фотография. Данные карты © участников OpenStreetMap.</div>
+  </div>
+</section>
+{% endif %}
 
 <section class="sec">
   <div class="eyebrow">Что дальше</div>

@@ -409,7 +409,9 @@ def build(serve=False):
     # питч для партнёров — /pitch/, с главной на него ссылок нет
     out = os.path.join(DIST, "pitch")
     os.makedirs(out, exist_ok=True)
-    html = env.get_template("pitch.html").render(site=site)
+    demo = next((r for c in cities if c["id"] == "zelenogradsk"
+                 for r in c["routes"] if r["id"] == "koty"), None)
+    html = env.get_template("pitch.html").render(site=site, demo=demo)
     open(os.path.join(out, "index.html"), "w", encoding="utf-8").write(html)
 
     shutil.copy(os.path.join(THEME, "app.css"), os.path.join(DIST, "app.css"))
