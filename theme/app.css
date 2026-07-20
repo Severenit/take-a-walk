@@ -212,6 +212,11 @@ code{font:500 13px/1 var(--mono);background:var(--card);padding:2px 5px;border-r
 .card:has(.cb:checked) .shots{filter:grayscale(1) contrast(.9)}
 .card.done{opacity:.55}
 .card.done .shots{filter:grayscale(1) contrast(.9)}
+.card.done:not(.peek) > *:not(.head):not(.mark):not(.cb){display:none}
+.card.done:not(.peek) .mark{margin:0 18px 14px}
+.card.done .head{cursor:pointer;padding-bottom:8px}
+.card.done:not(.peek) .head::after{content:"развернуть";margin-left:auto;align-self:center;
+  color:var(--muted);font:600 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase}
 
 .body{padding:15px 18px 4px}
 .body p{margin:0 0 11px;color:var(--body);font-size:15.5px;line-height:1.6}

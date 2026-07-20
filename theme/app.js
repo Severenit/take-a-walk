@@ -46,6 +46,12 @@
   tick();
   syncScheme();
 
+  // клик по шапке найденной карточки — развернуть/свернуть обратно
+  document.addEventListener('click', function (e) {
+    var head = e.target.closest('.card.done .head');
+    if (head) head.closest('.card').classList.toggle('peek');
+  });
+
   // ---------- «продолжить с ближайшей» ----------
   var resumeBtn = document.querySelector('[data-resume]');
   var geoCards = [].slice.call(document.querySelectorAll('.card[data-lat]'));
