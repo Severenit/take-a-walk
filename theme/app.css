@@ -145,7 +145,13 @@ code{font:500 13px/1 var(--mono);background:var(--card);padding:2px 5px;border-r
   padding:14px;border-radius:12px}
 .offline[data-state="saved"]{background:var(--rust)}
 .offline:active{transform:translateY(1px)}
+.resume{display:block;width:100%;margin-top:10px;cursor:pointer;
+  border:1px dashed var(--rust);border-radius:12px;background:transparent;
+  padding:13px;font:600 14px/1.2 var(--sans);color:var(--rust)}
+.resume:active{transform:translateY(1px)}
 .allroute{display:block;text-align:center;margin-top:12px;font:600 13px/1 var(--sans);color:var(--rust)}
+.scheme a.found circle{opacity:.3}
+.scheme a.found text{opacity:.45}
 
 /* схема */
 .tour{padding:30px 20px 0}

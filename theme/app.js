@@ -22,6 +22,15 @@
     if (pbar) pbar.style.width = (boxes.length ? n / boxes.length * 100 : 0) + '%';
   }
 
+  // гасим найденные точки на схеме
+  function syncScheme() {
+    boxes.forEach(function (b) {
+      var n = b.closest('.card').id.replace('p', '');
+      var a = document.querySelector('.scheme a[href="#p' + n + '"]');
+      if (a) a.classList.toggle('found', b.checked);
+    });
+  }
+
   boxes.forEach(function (b) {
     var card = b.closest('.card');
     if (found[b.dataset.id]) { b.checked = true; card.classList.add('done'); }
@@ -30,9 +39,65 @@
       card.classList.toggle('done', b.checked);
       persist();
       tick();
+      syncScheme();
+      updResume();
     });
   });
   tick();
+  syncScheme();
+
+  // ---------- «продолжить с ближайшей» ----------
+  var resumeBtn = document.querySelector('[data-resume]');
+  var geoCards = [].slice.call(document.querySelectorAll('.card[data-lat]'));
+  function leftCards() {
+    return geoCards.filter(function (c) {
+      var cb = c.querySelector('.cb');
+      return cb && !cb.checked && !c.classList.contains('gone');
+    });
+  }
+  function updResume() {
+    if (!resumeBtn) return;
+    var left = leftCards();
+    if (!left.length || left.length === geoCards.length) {
+      resumeBtn.hidden = (left.length === 0);
+      resumeBtn.textContent = 'Продолжить с ближайшей точки';
+      return;
+    }
+    resumeBtn.hidden = false;
+    resumeBtn.textContent = 'Продолжить — осталось ' + left.length;
+  }
+  if (resumeBtn) {
+    updResume();
+    resumeBtn.addEventListener('click', function () {
+      var left = leftCards();
+      if (!left.length) return;
+      if (!('geolocation' in navigator)) {
+        location.hash = '#' + left[0].id;
+        return;
+      }
+      resumeBtn.textContent = 'Ищу вас…';
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        var la = pos.coords.latitude, lo = pos.coords.longitude;
+        var k = Math.cos(la * Math.PI / 180);
+        var best = 0, bd = Infinity;
+        left.forEach(function (c, i) {
+          var dla = parseFloat(c.dataset.lat) - la;
+          var dlo = (parseFloat(c.dataset.lon) - lo) * k;
+          var d = dla * dla + dlo * dlo;
+          if (d < bd) { bd = d; best = i; }
+        });
+        var seq = left.slice(best);
+        var rtext = la.toFixed(6) + ',' + lo.toFixed(6) +
+          seq.map(function (c) { return '~' + c.dataset.lat + ',' + c.dataset.lon; }).join('');
+        updResume();
+        location.hash = '#' + seq[0].id;
+        window.open('https://yandex.ru/maps/?rtext=' + rtext + '&rtt=pd', '_blank', 'noopener');
+      }, function () {
+        updResume();
+        location.hash = '#' + left[0].id;
+      }, { enableHighAccuracy: true, timeout: 10000 });
+    });
+  }
 
   // ---------- отметки в квестах ----------
   var QKEY = 'progulki:qfound';

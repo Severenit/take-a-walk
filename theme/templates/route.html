@@ -27,6 +27,7 @@
       <button class="offline" data-offline='{{ route.offline_urls|tojson }}'>
         <span data-offline-label>Сохранить офлайн{% if route.offline_urls %} · {{ route.offline_mb }} МБ{% endif %}</span>
       </button>
+      <button class="resume" type="button" data-resume hidden>Продолжить с ближайшей</button>
       <a class="allroute" target="_blank" rel="noopener" href="{{ route.points|ymaps_all }}">Весь маршрут в Яндексе →</a>
     </div>
   </div>
@@ -65,7 +66,7 @@
 
     <div class="points">
   {% for p in route.points %}
-  <article class="card{% if p.mine %} add{% endif %}{% if p.closed %} gone{% endif %}" id="p{{ p.n }}">
+  <article class="card{% if p.mine %} add{% endif %}{% if p.closed %} gone{% endif %}" id="p{{ p.n }}" data-lat="{{ p.lat }}" data-lon="{{ p.lon }}">
     <div class="head">
       <div class="num">{% if p.mine %}+{% else %}{{ p.n }}{% endif %}</div>
       <div class="titles">
