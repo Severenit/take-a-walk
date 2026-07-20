@@ -308,8 +308,24 @@ def build(serve=False):
             route["img_count"] = len(imgs)
             route["n_points"] = len(route["points"])
             route["n_stories"] = sum(1 for p in route["points"] if p["story"])
+            fm_cover = route.get("cover") if isinstance(route.get("cover"), str) else None
             route["cover"] = next(
                 (p["shots"][0]["src"] for p in route["points"] if p.get("shots")), None)
+            if fm_cover and fm_cover.strip():
+                csrc = os.path.join(PHOTOS, city["id"], route["id"], fm_cover.strip())
+                if os.path.exists(csrc):
+                    im = ImageOps.exif_transpose(Image.open(csrc)).convert("RGB")
+                    out_dir = os.path.join(DIST, "img", city["id"], route["id"])
+                    os.makedirs(out_dir, exist_ok=True)
+                    stem = os.path.splitext(fm_cover.strip())[0]
+                    for w in WIDTHS:
+                        ow, oh = im.size
+                        r = im if ow <= w else im.resize((w, round(oh * w / ow)), Image.LANCZOS)
+                        r.save(os.path.join(out_dir, f"{stem}-{w}.jpg"), "JPEG",
+                               quality=QUALITY, optimize=True, progressive=True)
+                    route["cover"] = f"{BASE}/img/{city['id']}/{route['id']}/{stem}-560.jpg"
+                else:
+                    print(f"  ! нет файла обложки {city['id']}/{route['id']}/{fm_cover}")
         process_quest_photos(city, BASE)
         for route in city["routes"]:
 
