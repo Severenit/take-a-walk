@@ -132,6 +132,7 @@ code{font:500 13px/1 var(--mono);background:var(--card);padding:2px 5px;border-r
 /* --- страница маршрута: бар с сохранением --- */
 .route-bar{display:grid;gap:22px;padding:26px 20px 0}
 .route-intro p{margin:0;color:var(--body);font-size:16.5px;line-height:1.6;max-width:640px}
+.intro-audio{margin:16px 0 0;max-width:640px}
 .route-save{background:var(--card);border:1px solid var(--hair);border-radius:var(--r);
   padding:18px}
 .progress{display:flex;justify-content:space-between;align-items:baseline;gap:10px;

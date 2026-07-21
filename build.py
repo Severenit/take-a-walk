@@ -252,6 +252,25 @@ def process_audio(city, route, BASE=""):
     src_dir = os.path.join(AUDIO, city["id"], route["id"])
     out_dir = os.path.join(DIST, "audio", city["id"], route["id"])
     made = []
+
+    # маршрутное аудио (вступление) — поле audio: во фронтматтере
+    ra = route.get("audio")
+    if isinstance(ra, str) and ra.strip():
+        head = [x.strip() for x in ra.split("·", 1)]
+        ra = {"file": head[0], "dur": head[1] if len(head) > 1 else ""}
+        src = os.path.join(src_dir, ra["file"])
+        if os.path.exists(src):
+            os.makedirs(out_dir, exist_ok=True)
+            shutil.copy(src, os.path.join(out_dir, ra["file"]))
+            ra["url"] = f"{BASE}/audio/{city['id']}/{route['id']}/{ra['file']}"
+            made.append(ra["url"])
+            route["audio"] = ra
+        else:
+            print(f"  ! нет аудио {city['id']}/{route['id']}/{ra['file']}")
+            route["audio"] = None
+    else:
+        route["audio"] = None
+
     for p in route["points"]:
         a = p["audio"]
         if not a:

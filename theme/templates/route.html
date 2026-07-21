@@ -17,7 +17,18 @@
 
 <main data-route="{{ city.id }}/{{ route.id }}">
   <div class="route-bar">
-    <div class="route-intro"><p>{{ route.intro }}</p></div>
+    <div class="route-intro"><p>{{ route.intro }}</p>
+      {% if route.audio %}
+      <div class="story intro-audio">
+        <b>Вступление{% if route.audio.dur %} · {{ route.audio.dur }}{% endif %}</b>
+        <div class="player" data-player="{{ route.audio.url }}">
+          <button class="pp" type="button" aria-label="Слушать"></button>
+          <div class="pl-track"><span class="pl-line"><i></i></span></div>
+          <span class="pl-time"></span>
+        </div>
+      </div>
+      {% endif %}
+    </div>
     <div class="route-save">
       <div class="progress">
         <span><b data-progress-num>0</b> из {{ route.points|length }} найдено</span>
