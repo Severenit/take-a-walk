@@ -22,7 +22,9 @@
       <div class="story intro-audio">
         <b>Вступление{% if route.audio.dur %} · {{ route.audio.dur }}{% endif %}</b>
         <div class="player" data-player="{{ route.audio.url }}">
-          <button class="pp" type="button" aria-label="Слушать"></button>
+          <button class="pn" data-pn="-1" type="button" aria-label="Предыдущая история">&#8249;</button>
+        <button class="pp" type="button" aria-label="Слушать"></button>
+        <button class="pn" data-pn="1" type="button" aria-label="Следующая история">&#8250;</button>
           <div class="pl-track"><span class="pl-line"><i></i></span></div>
           <span class="pl-time"></span>
         </div>
@@ -108,7 +110,9 @@
       <b>Расскажи{% if p.audio and p.audio.dur %} · {{ p.audio.dur }}{% endif %}</b>
       {% if p.audio %}
       <div class="player" data-player="{{ p.audio.url }}">
+        <button class="pn" data-pn="-1" type="button" aria-label="Предыдущая история">&#8249;</button>
         <button class="pp" type="button" aria-label="Слушать"></button>
+        <button class="pn" data-pn="1" type="button" aria-label="Следующая история">&#8250;</button>
         <div class="pl-track"><span class="pl-line"><i></i></span></div>
         <span class="pl-time"></span>
       </div>

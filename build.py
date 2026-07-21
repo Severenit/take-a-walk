@@ -471,7 +471,10 @@ def build(serve=False):
     core = [f"{BASE}/", f"{BASE}/app.css", f"{BASE}/app.js",
             f"{BASE}/manifest.json", f"{BASE}/icon.svg"] + fonts + shell
     sw = open(os.path.join(THEME, "sw.js"), encoding="utf-8").read()
-    version = hashlib.sha1(json.dumps(core, sort_keys=True).encode()).hexdigest()[:8]
+    # версия — от состава сайта И от содержимого оболочки: правка одного лишь
+    # app.js/app.css тоже должна обновлять кэш у людей
+    shell_src = app_js + open(os.path.join(THEME, "app.css"), encoding="utf-8").read()
+    version = hashlib.sha1((json.dumps(core, sort_keys=True) + shell_src).encode()).hexdigest()[:8]
     sw = (sw.replace("__VERSION__", version)
             .replace("__CORE__", json.dumps(core, ensure_ascii=False))
             .replace("__BASE__", BASE))

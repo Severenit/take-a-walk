@@ -241,6 +241,12 @@ code{font:500 13px/1 var(--mono);background:var(--card);padding:2px 5px;border-r
 .player.playing .pp::before{width:4px;height:16px;margin-left:0;border:0;
   border-left:5px solid #1E1A15;border-right:5px solid #1E1A15}
 .pp:active{transform:translateY(1px)}
+.pn{flex:0 0 auto;width:30px;height:30px;border-radius:50%;padding:0 0 2px;cursor:pointer;
+  border:1.5px solid rgba(255,255,255,.22);background:none;color:var(--cream);
+  font:600 18px/1 var(--serif)}
+.pn:disabled{opacity:.25;cursor:default}
+.pn:not(:disabled):active{transform:translateY(1px)}
+.player{gap:10px}
 .pl-track{flex:1;height:44px;display:flex;align-items:center;padding:0;cursor:pointer}
 .pl-line{display:block;width:100%;height:4px;border-radius:100px;background:rgba(255,255,255,.18)}
 .pl-line i{display:block;height:100%;width:0;border-radius:100px;background:var(--amber)}

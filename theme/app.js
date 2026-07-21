@@ -154,9 +154,10 @@
     locBtn.hidden = true;
   }
 
-  // ---------- аудио-истории ----------
+  // ---------- аудио-истории: все плееры страницы — один плейлист ----------
   var playing = null;
-  [].slice.call(document.querySelectorAll('[data-player]')).forEach(function (el) {
+  var playlist = [];
+  [].slice.call(document.querySelectorAll('[data-player]')).forEach(function (el, idx) {
     var btn = el.querySelector('.pp');
     var track = el.querySelector('.pl-track');
     var fill = el.querySelector('.pl-line i');
@@ -184,8 +185,18 @@
         el.classList.add('playing');
       });
       a.addEventListener('pause', function () { el.classList.remove('playing'); });
-      a.addEventListener('ended', function () { a.currentTime = 0; draw(); });
+      a.addEventListener('ended', function () {
+        a.currentTime = 0; draw();
+        var next = playlist[idx + 1];
+        if (next) next.go();
+      });
       return a;
+    }
+    function go() {
+      var au = make();
+      au.currentTime = 0;
+      au.play();
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     btn.addEventListener('click', function () {
@@ -199,6 +210,19 @@
       au.currentTime = Math.min(Math.max((ev.clientX - r.left) / r.width, 0), 1) * au.duration;
       draw();
       au.play();
+    });
+    [].slice.call(el.querySelectorAll('[data-pn]')).forEach(function (nav) {
+      nav.addEventListener('click', function () {
+        var t = playlist[idx + (+nav.dataset.pn)];
+        if (t) t.go();
+      });
+    });
+    playlist.push({ el: el, go: go });
+  });
+  playlist.forEach(function (u, i) {
+    [].slice.call(u.el.querySelectorAll('[data-pn]')).forEach(function (nav) {
+      if (playlist.length < 2) { nav.hidden = true; return; }
+      nav.disabled = !playlist[i + (+nav.dataset.pn)];
     });
   });
 
