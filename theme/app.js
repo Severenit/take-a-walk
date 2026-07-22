@@ -183,6 +183,19 @@
         if (playing && playing !== a) playing.pause();
         playing = a;
         el.classList.add('playing');
+        if ('mediaSession' in navigator) {
+          try {
+            navigator.mediaSession.metadata = new MediaMetadata({
+              title: el.dataset.title || document.title,
+              artist: 'Прогулки',
+              album: el.dataset.album || ''
+            });
+            navigator.mediaSession.setActionHandler('previoustrack',
+              playlist[idx - 1] ? function () { playlist[idx - 1].go(); } : null);
+            navigator.mediaSession.setActionHandler('nexttrack',
+              playlist[idx + 1] ? function () { playlist[idx + 1].go(); } : null);
+          } catch (e) {}
+        }
       });
       a.addEventListener('pause', function () { el.classList.remove('playing'); });
       a.addEventListener('ended', function () {
