@@ -226,7 +226,7 @@ code{font:500 13px/1 var(--mono);background:var(--card);padding:2px 5px;border-r
   background:var(--dark);color:#D9D5CC;border-left:4px solid var(--amber)}
 .story > b{display:block;margin-bottom:11px;color:var(--amber);
   font:600 10.5px/1 var(--mono);letter-spacing:.17em;text-transform:uppercase}
-.story p{margin:0 0 11px;font-size:15.5px;line-height:1.6}
+.story p{margin:0 0 11px;font-size:15.5px;line-height:1.6;color:#D9D5CC}
 .story p:last-child{margin-bottom:0;color:var(--cream);font-weight:600}
 
 .look{margin:2px 18px 0;padding:11px 13px;border-radius:10px;background:var(--panel);
