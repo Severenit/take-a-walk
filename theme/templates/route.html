@@ -171,6 +171,15 @@
     <p>{{ route.coffee }}</p>
   </div>
   {% endif %}
+
+  {% if route.notes %}
+  <div class="coffee notes">
+    <b>Полезно знать</b>
+    <ul>
+      {% for n in route.notes %}<li>{{ n }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
 </main>
 
 <footer class="foot">
